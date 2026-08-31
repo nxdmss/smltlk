@@ -1,0 +1,15 @@
+export const colors = {
+  orange: '#FF4B18',
+  orangeDeep: '#E62F0D',
+  aqua: '#68E1D5',
+  lime: '#C7FF65',
+  ink: '#0B0B0D',
+  surface: '#151519',
+  surfaceRaised: '#1D1D22',
+  muted: '#9B9BA3',
+  cream: '#F2EFE8',
+  white: '#FFFFFF',
+  glass: 'rgba(255,255,255,0.085)',
+  glassStrong: 'rgba(255,255,255,0.14)',
+  glassBorder: 'rgba(255,255,255,0.14)',
+};
