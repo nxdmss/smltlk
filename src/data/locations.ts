@@ -30,7 +30,7 @@ export const coffeeShops: CoffeeShop[] = [
     address: 'ул. Гамзата Цадаса, 10Б',
     schedule: '08:00–00:00',
     phone: '+7 928 277-73-60',
-    coordinate: { latitude: 43.198888, longitude: 46.867233 },
+    coordinate: { latitude: 43.19863, longitude: 46.86723 },
   },
   {
     id: 'shamilya',
@@ -38,6 +38,6 @@ export const coffeeShops: CoffeeShop[] = [
     address: 'пр. Имама Шамиля, 1А',
     schedule: '08:00–00:00',
     phone: 'уточнить',
-    coordinate: { latitude: 43.20145, longitude: 46.86195 },
+    coordinate: { latitude: 43.19978, longitude: 46.86612 },
   },
 ];

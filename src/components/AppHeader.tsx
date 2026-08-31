@@ -1,90 +1,63 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import BrandMark from './BrandMark';
+
 import { colors } from '../theme';
+import BrandMark from './BrandMark';
 
 export default function AppHeader({ title, onBack }: { title?: string; onBack?: () => void }) {
   return (
     <View style={styles.header}>
-      <View style={styles.leftBlock}>
+      <View style={styles.left}>
+        <BrandMark width={52} />
         {onBack ? (
           <Pressable accessibilityRole="button" accessibilityLabel="Назад" onPress={onBack} style={styles.back}>
             <Text style={styles.backText}>←</Text>
           </Pressable>
-        ) : (
-          <BrandMark size={34} />
-        )}
+        ) : null}
       </View>
 
-      <View style={styles.center}>
-        {title ? (
-          <Text style={styles.title}>{title}</Text>
-        ) : (
-          <>
-            <Text style={styles.wordmark}>small talk</Text>
-            <Text style={styles.sub}>COFFEE · KIZILYURT</Text>
-          </>
-        )}
-      </View>
-
-      <View style={styles.rightBlock} />
+      {title ? <Text style={styles.title}>{title}</Text> : <View style={styles.centerSpacer} />}
+      <View style={styles.rightSpacer} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   header: {
-    minHeight: 56,
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  left: {
+    minWidth: 88,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  leftBlock: {
-    width: 42,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  rightBlock: {
-    width: 42,
-  },
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-  },
-  wordmark: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '900',
-    letterSpacing: -0.8,
-    textTransform: 'lowercase',
-  },
-  sub: {
-    color: colors.muted,
-    fontFamily: 'IBMPlexMono_600SemiBold',
-    fontSize: 7.5,
-    letterSpacing: 1.1,
-    marginTop: 2,
-  },
-  title: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '900',
-    letterSpacing: -0.8,
+    gap: 14,
   },
   back: {
-    width: 38,
-    height: 38,
-    borderWidth: 1,
-    borderColor: colors.line,
+    width: 32,
+    height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.panel,
   },
   backText: {
     color: colors.text,
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  title: {
+    flex: 1,
+    color: colors.text,
     fontSize: 20,
     fontWeight: '900',
+    letterSpacing: -0.8,
+    textAlign: 'center',
+    paddingTop: 4,
+  },
+  centerSpacer: {
+    flex: 1,
+  },
+  rightSpacer: {
+    width: 88,
   },
 });

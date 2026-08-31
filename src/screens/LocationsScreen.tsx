@@ -13,7 +13,6 @@ export default function LocationsScreen({ selected, onSelect, onContinue }: { se
       <AppHeader />
       <Text style={s.kicker}>4 КОФЕЙНИ · КИЗИЛЮРТ · САМОВЫВОЗ</Text>
       <Text style={s.title}>выбери{`\n`}точку.</Text>
-      <Text style={s.subtitle}>Настоящая карта 2ГИС. Реальные филиалы Small Talk Coffee.</Text>
       <View style={s.mapFrame}><CoffeeMap shops={coffeeShops} selectedId={selected.id} onSelect={onSelect} /></View>
       <View style={s.selectedCard}><View style={s.selectedNo}><Text style={s.selectedNoText}>0{selectedIndex}</Text></View><View style={s.selectedCopy}><Text style={s.selectedName}>{selected.name}</Text><Text style={s.selectedAddress}>{selected.address}</Text><Text style={s.selectedMeta}>сегодня · {selected.schedule}</Text></View></View>
       <View style={s.sectionHead}><Text style={s.sectionTitle}>точки</Text><Text style={s.sectionMeta}>НАЖМИ, ЧТОБЫ ВЫБРАТЬ</Text></View>
@@ -29,8 +28,7 @@ export default function LocationsScreen({ selected, onSelect, onContinue }: { se
 const s = StyleSheet.create({
   page: { padding: 18, paddingBottom: 34 },
   kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.35, marginBottom: 8 },
-  title: { color: colors.text, fontSize: 48, lineHeight: 46, fontWeight: '900', letterSpacing: -3.0 },
-  subtitle: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 10, marginBottom: 18, maxWidth: 360 },
+  title: { color: colors.text, fontSize: 48, lineHeight: 46, fontWeight: '900', letterSpacing: -3.0, marginBottom: 16 },
   mapFrame: { height: 350, borderWidth: 1, borderColor: colors.line, overflow: 'hidden', marginBottom: 12 },
   selectedCard: { borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, minHeight: 84, flexDirection: 'row', alignItems: 'center', padding: 12, marginBottom: 26 },
   selectedNo: { width: 50, height: 50, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center' },

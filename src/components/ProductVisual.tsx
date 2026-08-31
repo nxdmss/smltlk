@@ -19,5 +19,5 @@ const styles = StyleSheet.create({
   graphicOne: { position: 'absolute', width: 180, height: 180, borderRadius: 90, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', right: -20, top: -30 },
   graphicTwo: { position: 'absolute', width: 96, height: 96, backgroundColor: 'rgba(255,255,255,0.12)', left: -18, bottom: -18, transform: [{ rotate: '18deg' }] },
   image: { width: '90%', height: '116%', transform: [{ translateY: 12 }] },
-  imageHero: { width: '100%', height: '124%', transform: [{ translateY: 10 }] },
+  imageHero: { width: '118%', height: '148%', transform: [{ translateX: 8 }, { translateY: 10 }] },
 });
