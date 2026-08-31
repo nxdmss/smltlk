@@ -1,0 +1,30 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import AppHeader from '../components/AppHeader';
+import ScreenScrollView from '../components/ScreenScrollView';
+import { coffeeShops } from '../data/locations';
+import type { CoffeeShop } from '../data/locations';
+import { colors } from '../theme';
+import type { CartSummary } from '../types';
+import { rubles } from '../utils';
+
+const times = ['через 10 мин', 'через 20 мин', 'через 30 мин'];
+export default function CheckoutScreen({ location, summary, pickupTime, onTimeChange, onBack, onPay }: { location: CoffeeShop; summary: CartSummary; pickupTime: string; onTimeChange: (time: string) => void; onBack: () => void; onPay: () => void }) {
+  const number = coffeeShops.findIndex(s => s.id === location.id) + 1;
+  return <View style={{ flex: 1 }}><ScreenScrollView screenKey="checkout" contentContainerStyle={s.page}>
+    <AppHeader title="оформление" onBack={onBack}/>
+    <Text style={s.kicker}>FINAL STEP / ST ORDER</Text><Text style={s.title}>забрать{`\n`}и говорить.</Text>
+    <Text style={s.heading}>точка</Text><View style={s.location}><View style={s.number}><Text style={s.numberText}>0{number}</Text></View><View style={{ flex: 1 }}><Text style={s.address}>{location.address}</Text><Text style={s.meta}>заказ будет ждать у стойки</Text></View></View>
+    <Text style={s.heading}>когда приготовить?</Text><View style={s.timeGrid}>{times.map(time => { const active = time === pickupTime; return <Pressable key={time} onPress={() => onTimeChange(time)} style={[s.time, active && s.timeActive]}><Text style={[s.timeText, active && s.timeTextActive]}>{time}</Text></Pressable>; })}</View>
+    <Text style={s.heading}>предоплата</Text><View style={s.payment}><View style={s.cardIcon}><Text style={s.cardIconText}>▰</Text></View><View style={{ flex: 1 }}><Text style={s.paymentTitle}>банковская карта</Text><Text style={s.meta}>демо · деньги не списываются</Text></View><Text style={s.arrow}>→</Text></View>
+    <Text style={s.notice}>Заказ попадёт бариста после подтверждения оплаты.</Text>
+    <View style={s.summary}><View style={s.row}><Text style={s.label}>товары</Text><Text style={s.value}>{rubles(summary.total)}</Text></View><View style={[s.row, s.total]}><Text style={s.totalLabel}>к оплате</Text><Text style={s.totalValue}>{rubles(summary.total)}</Text></View></View>
+  </ScreenScrollView><View style={s.bottom}><Pressable onPress={onPay} style={s.primary}><Text style={s.primaryText}>оплатить</Text><Text style={s.primaryText}>{rubles(summary.total)}</Text></Pressable></View></View>;
+}
+const s = StyleSheet.create({
+  page: { padding: 18, paddingBottom: 120 }, kicker: { color: colors.red, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.3 }, title: { color: colors.black, fontSize: 45, lineHeight: 43, fontWeight: '900', letterSpacing: -2.6, marginTop: 7, marginBottom: 22 }, heading: { color: colors.black, fontSize: 20, fontWeight: '900', letterSpacing: -0.7, marginTop: 14, marginBottom: 9 },
+  location: { minHeight: 78, borderWidth: 1.5, borderColor: colors.black, backgroundColor: colors.white, flexDirection: 'row', alignItems: 'center', padding: 11 }, number: { width: 50, height: 50, borderRadius: 15, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 11 }, numberText: { color: colors.white, fontFamily: 'IBMPlexMono_700Bold', fontSize: 13 }, address: { color: colors.black, fontSize: 14, fontWeight: '900' }, meta: { color: colors.muted, fontFamily: 'IBMPlexMono_500Medium', fontSize: 8.5, marginTop: 4 },
+  timeGrid: { flexDirection: 'row', gap: 7 }, time: { flex: 1, minHeight: 62, borderWidth: 1.5, borderColor: colors.black, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }, timeActive: { backgroundColor: colors.black }, timeText: { color: colors.black, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8.5, textAlign: 'center' }, timeTextActive: { color: colors.white },
+  payment: { minHeight: 80, borderWidth: 1.5, borderColor: colors.black, flexDirection: 'row', alignItems: 'center', padding: 11, backgroundColor: colors.white }, cardIcon: { width: 52, height: 52, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 10 }, cardIconText: { color: colors.white, fontSize: 22 }, paymentTitle: { color: colors.black, fontSize: 14, fontWeight: '900' }, arrow: { color: colors.black, fontSize: 20 }, notice: { color: colors.muted, fontSize: 10.5, lineHeight: 15, marginTop: 8 },
+  summary: { borderWidth: 1.5, borderColor: colors.black, padding: 15, marginTop: 20 }, row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }, label: { color: colors.muted, fontSize: 12 }, value: { color: colors.black, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, total: { borderTopWidth: 1.5, borderColor: colors.black, marginTop: 5, paddingTop: 14 }, totalLabel: { color: colors.black, fontSize: 18, fontWeight: '900' }, totalValue: { color: colors.red, fontFamily: 'IBMPlexMono_700Bold', fontSize: 17 },
+  bottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 18, backgroundColor: colors.paper }, primary: { minHeight: 62, borderRadius: 18, backgroundColor: colors.red, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18 }, primaryText: { color: colors.white, fontSize: 15, fontWeight: '900' },
+});
