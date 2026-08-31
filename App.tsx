@@ -22,12 +22,7 @@ import { styles } from './src/styles';
 import type { CartItem, Screen } from './src/types';
 
 export default function App() {
-  const [fontsLoaded] = useFonts({
-    IBMPlexMono_400Regular,
-    IBMPlexMono_500Medium,
-    IBMPlexMono_600SemiBold,
-    IBMPlexMono_700Bold,
-  });
+  const [fontsLoaded] = useFonts({ IBMPlexMono_400Regular, IBMPlexMono_500Medium, IBMPlexMono_600SemiBold, IBMPlexMono_700Bold });
   const [screen, setScreen] = useState<Screen>('locations');
   const [selectedLocation, setSelectedLocation] = useState(coffeeShops[0]);
   const [activeCategory, setActiveCategory] = useState('popular');
@@ -38,160 +33,49 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [pickupTime, setPickupTime] = useState('через 20 мин');
 
-  const cartSummary = useMemo(
-    () => ({
-      quantity: cart.reduce((sum, item) => sum + item.quantity, 0),
-      total: cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
-    }),
-    [cart],
-  );
+  const cartSummary = useMemo(() => ({ quantity: cart.reduce((sum, item) => sum + item.quantity, 0), total: cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0) }), [cart]);
 
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-
-    const resetWebScroll = () => {
+    const reset = () => {
       (document.activeElement as HTMLElement | null)?.blur();
-      window.scrollTo({ top: 0, behavior: 'instant' });
-      document.querySelectorAll<HTMLElement>('*').forEach((element) => {
-        if (element.scrollTop > 0) element.scrollTop = 0;
-      });
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
     };
-
-    resetWebScroll();
-    const timer = setTimeout(resetWebScroll, 300);
+    reset();
+    const timer = setTimeout(reset, 200);
     return () => clearTimeout(timer);
   }, [screen]);
 
   if (!fontsLoaded) return <View style={styles.loading} />;
 
   const openProduct = (product: Product) => {
-    setSelectedProduct(product);
-    setSelectedSize(0);
-    setAltMilk(false);
-    setSyrup(false);
+    setSelectedProduct(product); setSelectedSize(0); setAltMilk(false); setSyrup(false);
   };
-
   const addSelectedProduct = () => {
     if (!selectedProduct) return;
-
     const size = selectedProduct.sizes[selectedSize];
-    const extras = [
-      altMilk ? 'альтернативное молоко' : '',
-      syrup ? 'сироп' : '',
-    ].filter(Boolean);
-    const key = selectedProduct.id + '-' + selectedSize + '-' + altMilk + '-' + syrup;
+    const extras = [altMilk ? 'альтернативное молоко' : '', syrup ? 'сироп' : ''].filter(Boolean);
+    const key = `${selectedProduct.id}-${selectedSize}-${altMilk}-${syrup}`;
     const unitPrice = size.price + (altMilk ? 90 : 0) + (syrup ? 30 : 0);
-
-    setCart((current) => {
-      const existing = current.find((item) => item.key === key);
-      if (existing) {
-        return current.map((item) =>
-          item.key === key ? { ...item, quantity: item.quantity + 1 } : item,
-        );
-      }
-
-      return [
-        ...current,
-        {
-          key,
-          productId: selectedProduct.id,
-          name: selectedProduct.name,
-          details: [size.label, ...extras].join(' · '),
-          unitPrice,
-          quantity: 1,
-        },
-      ];
+    setCart(current => {
+      const existing = current.find(item => item.key === key);
+      if (existing) return current.map(item => item.key === key ? { ...item, quantity: item.quantity + 1 } : item);
+      return [...current, { key, productId: selectedProduct.id, name: selectedProduct.name, details: [size.label, ...extras].join(' · '), unitPrice, quantity: 1 }];
     });
-
     setSelectedProduct(null);
   };
-
-  const changeQuantity = (key: string, delta: number) => {
-    setCart((current) =>
-      current
-        .map((item) =>
-          item.key === key ? { ...item, quantity: item.quantity + delta } : item,
-        )
-        .filter((item) => item.quantity > 0),
-    );
-  };
+  const changeQuantity = (key: string, delta: number) => setCart(current => current.map(item => item.key === key ? { ...item, quantity: item.quantity + delta } : item).filter(item => item.quantity > 0));
 
   let content;
+  if (screen === 'locations') content = <LocationsScreen selected={selectedLocation} onSelect={setSelectedLocation} onContinue={() => setScreen('menu')} />;
+  else if (screen === 'menu') content = <MenuScreen selectedLocation={selectedLocation} activeCategory={activeCategory} onCategoryChange={setActiveCategory} onLocations={() => setScreen('locations')} onOpenProduct={openProduct} onCart={() => setScreen('cart')} cartSummary={cartSummary} />;
+  else if (screen === 'cart') content = <CartScreen items={cart} summary={cartSummary} location={selectedLocation} onBack={() => setScreen('menu')} onLocations={() => setScreen('locations')} onQuantityChange={changeQuantity} onCheckout={() => setScreen('checkout')} />;
+  else if (screen === 'checkout') content = <CheckoutScreen location={selectedLocation} summary={cartSummary} pickupTime={pickupTime} onTimeChange={setPickupTime} onBack={() => setScreen('cart')} onPay={() => setScreen('success')} />;
+  else content = <SuccessScreen location={selectedLocation} pickupTime={pickupTime} onNewOrder={() => { setCart([]); setScreen('locations'); }} />;
 
-  if (screen === 'locations') {
-    content = (
-      <LocationsScreen
-        selected={selectedLocation}
-        onSelect={setSelectedLocation}
-        onContinue={() => setScreen('menu')}
-      />
-    );
-  } else if (screen === 'menu') {
-    content = (
-      <MenuScreen
-        selectedLocation={selectedLocation}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        onLocations={() => setScreen('locations')}
-        onOpenProduct={openProduct}
-        onCart={() => setScreen('cart')}
-        cartSummary={cartSummary}
-      />
-    );
-  } else if (screen === 'cart') {
-    content = (
-      <CartScreen
-        items={cart}
-        summary={cartSummary}
-        location={selectedLocation}
-        onBack={() => setScreen('menu')}
-        onLocations={() => setScreen('locations')}
-        onQuantityChange={changeQuantity}
-        onCheckout={() => setScreen('checkout')}
-      />
-    );
-  } else if (screen === 'checkout') {
-    content = (
-      <CheckoutScreen
-        location={selectedLocation}
-        summary={cartSummary}
-        pickupTime={pickupTime}
-        onTimeChange={setPickupTime}
-        onBack={() => setScreen('cart')}
-        onPay={() => setScreen('success')}
-      />
-    );
-  } else {
-    content = (
-      <SuccessScreen
-        location={selectedLocation}
-        pickupTime={pickupTime}
-        onNewOrder={() => {
-          setCart([]);
-          setScreen('locations');
-        }}
-      />
-    );
-  }
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="light" />
-      <View style={styles.appShell}>
-        <AmbientBackground />
-        {content}
-      </View>
-      <ProductSheet
-        product={selectedProduct}
-        selectedSize={selectedSize}
-        altMilk={altMilk}
-        syrup={syrup}
-        onSizeChange={setSelectedSize}
-        onAltMilkChange={() => setAltMilk((value) => !value)}
-        onSyrupChange={() => setSyrup((value) => !value)}
-        onClose={() => setSelectedProduct(null)}
-        onAdd={addSelectedProduct}
-      />
-    </SafeAreaView>
-  );
+  return <SafeAreaView style={styles.safeArea}>
+    <StatusBar style="light" />
+    <View style={styles.appShell}><AmbientBackground />{content}</View>
+    <ProductSheet product={selectedProduct} selectedSize={selectedSize} altMilk={altMilk} syrup={syrup} onSizeChange={setSelectedSize} onAltMilkChange={() => setAltMilk(v => !v)} onSyrupChange={() => setSyrup(v => !v)} onClose={() => setSelectedProduct(null)} onAdd={addSelectedProduct} />
+  </SafeAreaView>;
 }

@@ -1,11 +1,24 @@
-import { Text, View } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextStyle, View } from 'react-native';
+import { colors } from '../theme';
 
-import { styles } from '../styles';
-
-export default function BrandMark({ size = 44 }: { size?: number }) {
+export default function BrandMark({ size = 34, style, inverted = false }: { size?: number; inverted?: boolean; style?: StyleProp<TextStyle> }) {
+  const fg = inverted ? colors.white : colors.red;
   return (
-    <View style={[styles.brandMark, { width: size, height: size, borderRadius: size / 2 }]}>
-      <Text style={[styles.brandMarkText, { fontSize: size * 0.48 }]}>””</Text>
+    <View style={styles.wrap}>
+      <Text style={[styles.quotes, { color: fg, fontSize: size, lineHeight: size }, style]}>””</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  wrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 28,
+  },
+  quotes: {
+    fontWeight: '900',
+    letterSpacing: -4,
+    textAlign: 'center',
+  },
+});

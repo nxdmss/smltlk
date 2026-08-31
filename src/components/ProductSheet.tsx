@@ -1,107 +1,65 @@
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
-
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { Product } from '../data/menu';
-import { styles } from '../styles';
+import { colors } from '../theme';
 import { rubles } from '../utils';
 import ProductVisual from './ProductVisual';
 
-export default function ProductSheet({
-  product,
-  selectedSize,
-  altMilk,
-  syrup,
-  onSizeChange,
-  onAltMilkChange,
-  onSyrupChange,
-  onClose,
-  onAdd,
-}: {
-  product: Product | null;
-  selectedSize: number;
-  altMilk: boolean;
-  syrup: boolean;
-  onSizeChange: (index: number) => void;
-  onAltMilkChange: () => void;
-  onSyrupChange: () => void;
-  onClose: () => void;
-  onAdd: () => void;
+export default function ProductSheet({ product, selectedSize, altMilk, syrup, onSizeChange, onAltMilkChange, onSyrupChange, onClose, onAdd }: {
+  product: Product | null; selectedSize: number; altMilk: boolean; syrup: boolean;
+  onSizeChange: (index: number) => void; onAltMilkChange: () => void; onSyrupChange: () => void; onClose: () => void; onAdd: () => void;
 }) {
-  const selectedPrice = product
-    ? product.sizes[selectedSize].price + (altMilk ? 90 : 0) + (syrup ? 30 : 0)
-    : 0;
-
+  const price = product ? product.sizes[selectedSize].price + (altMilk ? 90 : 0) + (syrup ? 30 : 0) : 0;
   return (
     <Modal animationType="slide" transparent visible={Boolean(product)} onRequestClose={onClose}>
-      <View style={styles.modalBackdrop}>
-        <Pressable accessibilityLabel="Закрыть карточку" style={styles.modalDismiss} onPress={onClose} />
-        {product ? (
-          <View style={styles.sheet}>
-            <View style={styles.sheetHandle} />
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <ProductVisual product={product} hero />
-              <View style={styles.sheetHeader}>
-                <View style={styles.sheetTitleWrap}>
-                  <Text style={styles.sheetKicker}>CUSTOMIZE YOUR DRINK</Text>
-                  <Text style={styles.sheetTitle}>{product.name}</Text>
-                  <Text style={styles.sheetDescription}>{product.description}</Text>
-                </View>
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel="Закрыть"
-                  style={styles.closeButton}
-                  onPress={onClose}
-                >
-                  <Text style={styles.closeButtonText}>×</Text>
-                </Pressable>
+      <View style={styles.backdrop}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Закрыть" />
+        {product ? <View style={styles.sheet}>
+          <View style={styles.handle} />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <ProductVisual product={product} hero />
+            <View style={styles.head}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.kicker}>ST/{product.code} · СОБЕРИ СВОЙ НАПИТОК</Text>
+                <Text style={styles.title}>{product.name}</Text>
+                <Text style={styles.description}>{product.description}</Text>
               </View>
-
-              <Text style={styles.optionTitle}>размер</Text>
-              <View style={styles.optionRow}>
-                {product.sizes.map((size, index) => (
-                  <Pressable
-                    key={size.label + '-' + size.price}
-                    accessibilityRole="button"
-                    accessibilityState={{ selected: selectedSize === index }}
-                    onPress={() => onSizeChange(index)}
-                    style={[styles.option, selectedSize === index && styles.optionActive]}
-                  >
-                    <Text style={styles.optionLabel}>{size.label}</Text>
-                    <Text style={styles.optionPrice}>{rubles(size.price)}</Text>
-                  </Pressable>
-                ))}
-              </View>
-
-              <Text style={styles.optionTitle}>добавить</Text>
-              <Pressable
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: altMilk }}
-                style={styles.extraRow}
-                onPress={onAltMilkChange}
-              >
-                <Text style={styles.extraLabel}>альтернативное молоко</Text>
-                <View style={[styles.check, altMilk && styles.checkActive]}>
-                  <Text style={styles.checkText}>{altMilk ? '✓' : '+90'}</Text>
-                </View>
-              </Pressable>
-              <Pressable
-                accessibilityRole="checkbox"
-                accessibilityState={{ checked: syrup }}
-                style={styles.extraRow}
-                onPress={onSyrupChange}
-              >
-                <Text style={styles.extraLabel}>сироп</Text>
-                <View style={[styles.check, syrup && styles.checkActive]}>
-                  <Text style={styles.checkText}>{syrup ? '✓' : '+30'}</Text>
-                </View>
-              </Pressable>
-            </ScrollView>
-            <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={onAdd}>
-              <Text style={styles.primaryButtonText}>добавить</Text>
-              <Text style={styles.primaryButtonText}>{rubles(selectedPrice)}</Text>
-            </Pressable>
-          </View>
-        ) : null}
+              <Pressable onPress={onClose} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
+            </View>
+            <Text style={styles.label}>РАЗМЕР</Text>
+            <View style={styles.row}>{product.sizes.map((size, index) => <Pressable key={size.label} onPress={() => onSizeChange(index)} style={[styles.option, index === selectedSize && styles.optionActive]}><Text style={[styles.optionName, index === selectedSize && styles.optionNameActive]}>{size.label}</Text><Text style={[styles.optionPrice, index === selectedSize && styles.optionNameActive]}>{rubles(size.price)}</Text></Pressable>)}</View>
+            <Text style={styles.label}>ДОБАВИТЬ</Text>
+            <Pressable onPress={onAltMilkChange} style={[styles.extra, altMilk && styles.extraActive]}><Text style={[styles.extraText, altMilk && styles.extraTextActive]}>альтернативное молоко</Text><Text style={[styles.extraPrice, altMilk && styles.extraTextActive]}>{altMilk ? '✓' : '+90 ₽'}</Text></Pressable>
+            <Pressable onPress={onSyrupChange} style={[styles.extra, syrup && styles.extraActive]}><Text style={[styles.extraText, syrup && styles.extraTextActive]}>сироп</Text><Text style={[styles.extraPrice, syrup && styles.extraTextActive]}>{syrup ? '✓' : '+30 ₽'}</Text></Pressable>
+          </ScrollView>
+          <Pressable onPress={onAdd} style={styles.add}><Text style={styles.addText}>добавить</Text><Text style={styles.addText}>{rubles(price)}</Text></Pressable>
+        </View> : null}
       </View>
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.76)', justifyContent: 'flex-end', alignItems: 'center' },
+  sheet: { width: '100%', maxWidth: 520, maxHeight: '94%', backgroundColor: colors.panel, borderTopLeftRadius: 12, borderTopRightRadius: 12, padding: 18, borderWidth: 1, borderColor: colors.line },
+  handle: { width: 52, height: 4, backgroundColor: colors.line, alignSelf: 'center', marginBottom: 14 },
+  head: { flexDirection: 'row', gap: 12, marginTop: 18 },
+  kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8, letterSpacing: 1.2 },
+  title: { color: colors.text, fontSize: 32, lineHeight: 34, fontWeight: '900', letterSpacing: -1.6, marginTop: 5 },
+  description: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 7 },
+  close: { width: 40, height: 40, backgroundColor: colors.panelStrong, alignItems: 'center', justifyContent: 'center' },
+  closeText: { color: colors.text, fontSize: 24, lineHeight: 26 },
+  label: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.4, marginTop: 22, marginBottom: 9 },
+  row: { flexDirection: 'row', gap: 8 },
+  option: { flex: 1, minHeight: 68, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panelSoft, padding: 12, justifyContent: 'space-between' },
+  optionActive: { backgroundColor: colors.red, borderColor: colors.red },
+  optionName: { color: colors.text, fontWeight: '800', fontSize: 12 },
+  optionNameActive: { color: colors.white },
+  optionPrice: { color: colors.muted, fontFamily: 'IBMPlexMono_600SemiBold', fontSize: 10 },
+  extra: { minHeight: 56, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panelSoft, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 },
+  extraActive: { backgroundColor: colors.red, borderColor: colors.red },
+  extraText: { color: colors.text, fontWeight: '800', fontSize: 13 },
+  extraTextActive: { color: colors.white },
+  extraPrice: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 10 },
+  add: { minHeight: 58, backgroundColor: colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, marginTop: 14 },
+  addText: { color: colors.white, fontSize: 16, fontWeight: '900' },
+});

@@ -1,36 +1,45 @@
-import { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-
-import { styles } from '../styles';
+import { StyleSheet, View } from 'react-native';
+import { colors } from '../theme';
 
 export default function AmbientBackground() {
-  const movement = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    const animation = Animated.loop(
-      Animated.sequence([
-        Animated.timing(movement, { toValue: 1, duration: 5200, useNativeDriver: true }),
-        Animated.timing(movement, { toValue: 0, duration: 5200, useNativeDriver: true }),
-      ]),
-    );
-    animation.start();
-    return () => animation.stop();
-  }, [movement]);
-
-  const transform = {
-    transform: [
-      { translateX: movement.interpolate({ inputRange: [0, 1], outputRange: [-18, 28] }) },
-      { translateY: movement.interpolate({ inputRange: [0, 1], outputRange: [-8, 36] }) },
-      { scale: movement.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1.12] }) },
-    ],
-  };
-
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <LinearGradient colors={['#08080A', '#101014', '#08080A']} style={StyleSheet.absoluteFill} />
-      <Animated.View style={[styles.ambientOrange, transform]} />
-      <Animated.View style={[styles.ambientAqua, transform]} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]} />
+      <View style={styles.glowTop} />
+      <View style={styles.glowBottom} />
+      <View style={styles.line} />
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  glowTop: {
+    position: 'absolute',
+    width: 320,
+    height: 320,
+    borderRadius: 160,
+    backgroundColor: colors.red,
+    opacity: 0.12,
+    right: -160,
+    top: 70,
+  },
+  glowBottom: {
+    position: 'absolute',
+    width: 260,
+    height: 260,
+    borderRadius: 130,
+    backgroundColor: colors.redDeep,
+    opacity: 0.14,
+    left: -140,
+    bottom: 40,
+  },
+  line: {
+    position: 'absolute',
+    width: 220,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    left: -40,
+    top: 420,
+    transform: [{ rotate: '-20deg' }],
+  },
+});

@@ -1,0 +1,15 @@
+SMALL TALK — 2GIS MAP
+
+1) Распакуй этот архив ПОВЕРХ существующей папки проекта C:\Users\umarc\smltlk
+   с заменой файлов. Не удаляй свои assets/products/*.png.
+
+2) В терминале из папки проекта:
+   npm install
+
+3) Потом:
+   npx tsc --noEmit
+   npm start
+
+4) Нажми w для web.
+
+API ключ уже лежит в .env как EXPO_PUBLIC_2GIS_KEY.

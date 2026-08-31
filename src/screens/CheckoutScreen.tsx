@@ -1,101 +1,15 @@
-import { Pressable, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import GlassPanel from '../components/GlassPanel';
 import ScreenScrollView from '../components/ScreenScrollView';
 import { coffeeShops } from '../data/locations';
 import type { CoffeeShop } from '../data/locations';
-import { styles } from '../styles';
 import { colors } from '../theme';
 import type { CartSummary } from '../types';
 import { rubles } from '../utils';
 
-const pickupTimes = ['через 10 мин', 'через 20 мин', 'через 30 мин'] as const;
-
-export default function CheckoutScreen({
-  location,
-  summary,
-  pickupTime,
-  onTimeChange,
-  onBack,
-  onPay,
-}: {
-  location: CoffeeShop;
-  summary: CartSummary;
-  pickupTime: string;
-  onTimeChange: (time: string) => void;
-  onBack: () => void;
-  onPay: () => void;
-}) {
-  return (
-    <View style={styles.flex}>
-      <ScreenScrollView screenKey="checkout" contentContainerStyle={styles.pageContentWithBar}>
-        <AppHeader title="оформление" onBack={onBack} />
-        <Text style={styles.checkoutHeading}>самовывоз</Text>
-        <GlassPanel style={styles.checkoutCard}>
-          <View style={styles.locationNumber}>
-            <Text style={styles.locationNumberText}>
-              {coffeeShops.findIndex((shop) => shop.id === location.id) + 1}
-            </Text>
-          </View>
-          <View style={styles.locationCopy}>
-            <Text style={styles.locationAddress}>{location.address}</Text>
-            <Text style={styles.locationSchedule}>заказ будет ждать у стойки</Text>
-          </View>
-        </GlassPanel>
-
-        <Text style={styles.checkoutHeading}>когда приготовить?</Text>
-        <View style={styles.timeGrid}>
-          {pickupTimes.map((time) => (
-            <Pressable
-              key={time}
-              accessibilityRole="radio"
-              accessibilityState={{ selected: pickupTime === time }}
-              onPress={() => onTimeChange(time)}
-              style={[styles.timeChip, pickupTime === time && styles.timeChipActive]}
-            >
-              <Text style={[styles.timeChipText, pickupTime === time && styles.timeChipTextActive]}>
-                {time}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        <Text style={styles.checkoutHeading}>предоплата</Text>
-        <GlassPanel style={styles.paymentCard}>
-          <LinearGradient colors={[colors.aqua, '#47A9C5']} style={styles.cardIcon}>
-            <Text style={styles.cardIconText}>▰</Text>
-          </LinearGradient>
-          <View style={styles.locationCopy}>
-            <Text style={styles.paymentTitle}>банковская карта</Text>
-            <Text style={styles.paymentSubtitle}>демо · деньги не списываются</Text>
-          </View>
-          <Text style={styles.locationArrow}>›</Text>
-        </GlassPanel>
-        <Text style={styles.paymentNotice}>
-          Заказ попадёт бариста только после успешной оплаты.
-        </Text>
-
-        <GlassPanel style={styles.summaryCard}>
-          <View style={styles.summaryColumn}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>товары</Text>
-              <Text style={styles.summaryValue}>{rubles(summary.total)}</Text>
-            </View>
-            <View style={[styles.summaryRow, styles.summaryTotalRow]}>
-              <Text style={styles.summaryTotalLabel}>к оплате</Text>
-              <Text style={styles.summaryTotalValue}>{rubles(summary.total)}</Text>
-            </View>
-          </View>
-        </GlassPanel>
-      </ScreenScrollView>
-      <View style={styles.bottomAction}>
-        <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={onPay}>
-          <Text style={styles.primaryButtonText}>оплатить</Text>
-          <Text style={styles.primaryButtonText}>{rubles(summary.total)}</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
+const times = ['через 10 мин', 'через 20 мин', 'через 30 мин'];
+export default function CheckoutScreen({ location, summary, pickupTime, onTimeChange, onBack, onPay }: { location: CoffeeShop; summary: CartSummary; pickupTime: string; onTimeChange: (time: string) => void; onBack: () => void; onPay: () => void }) {
+  const number = coffeeShops.findIndex(s => s.id === location.id) + 1;
+  return <View style={{ flex: 1 }}><ScreenScrollView screenKey="checkout" contentContainerStyle={s.page}><AppHeader title="оформление" onBack={onBack}/><Text style={s.kicker}>FINAL STEP / ST ORDER</Text><Text style={s.title}>забрать{`\n`}и говорить.</Text><Text style={s.heading}>точка</Text><View style={s.location}><View style={s.number}><Text style={s.numberText}>0{number}</Text></View><View style={{ flex: 1 }}><Text style={s.address}>{location.address}</Text><Text style={s.meta}>заказ будет ждать у стойки</Text></View></View><Text style={s.heading}>когда приготовить?</Text><View style={s.timeGrid}>{times.map(time => { const active = time === pickupTime; return <Pressable key={time} onPress={() => onTimeChange(time)} style={[s.time, active && s.timeActive]}><Text style={[s.timeText, active && s.timeTextActive]}>{time}</Text></Pressable>; })}</View><Text style={s.heading}>предоплата</Text><View style={s.payment}><View style={s.cardIcon}><Text style={s.cardIconText}>▰</Text></View><View style={{ flex: 1 }}><Text style={s.paymentTitle}>банковская карта</Text><Text style={s.meta}>демо · деньги не списываются</Text></View><Text style={s.arrow}>→</Text></View><Text style={s.notice}>Заказ попадёт бариста после подтверждения оплаты.</Text><View style={s.summary}><View style={s.row}><Text style={s.label}>товары</Text><Text style={s.value}>{rubles(summary.total)}</Text></View><View style={[s.row, s.total]}><Text style={s.totalLabel}>к оплате</Text><Text style={s.totalValue}>{rubles(summary.total)}</Text></View></View></ScreenScrollView><View style={s.bottom}><Pressable onPress={onPay} style={s.primary}><Text style={s.primaryText}>оплатить</Text><Text style={s.primaryText}>{rubles(summary.total)}</Text></Pressable></View></View>;
 }
+const s = StyleSheet.create({ page: { padding: 18, paddingBottom: 120 }, kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.3 }, title: { color: colors.text, fontSize: 45, lineHeight: 43, fontWeight: '900', letterSpacing: -2.6, marginTop: 7, marginBottom: 22 }, heading: { color: colors.text, fontSize: 20, fontWeight: '900', letterSpacing: -0.7, marginTop: 14, marginBottom: 9 }, location: { minHeight: 78, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, flexDirection: 'row', alignItems: 'center', padding: 11 }, number: { width: 50, height: 50, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 11 }, numberText: { color: colors.white, fontFamily: 'IBMPlexMono_700Bold', fontSize: 13 }, address: { color: colors.text, fontSize: 14, fontWeight: '900' }, meta: { color: colors.muted, fontFamily: 'IBMPlexMono_500Medium', fontSize: 8.5, marginTop: 4 }, timeGrid: { flexDirection: 'row', gap: 7 }, time: { flex: 1, minHeight: 58, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }, timeActive: { backgroundColor: colors.red, borderColor: colors.red }, timeText: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8.5, textAlign: 'center' }, timeTextActive: { color: colors.white }, payment: { minHeight: 80, borderWidth: 1, borderColor: colors.line, flexDirection: 'row', alignItems: 'center', padding: 11, backgroundColor: colors.panel }, cardIcon: { width: 50, height: 50, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 10 }, cardIconText: { color: colors.white, fontSize: 22 }, paymentTitle: { color: colors.text, fontSize: 14, fontWeight: '900' }, arrow: { color: colors.text, fontSize: 20 }, notice: { color: colors.muted, fontSize: 10.5, lineHeight: 15, marginTop: 8 }, summary: { borderWidth: 1, borderColor: colors.line, padding: 15, marginTop: 20, backgroundColor: colors.panel }, row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }, label: { color: colors.muted, fontSize: 12 }, value: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, total: { borderTopWidth: 1, borderColor: colors.line, marginTop: 5, paddingTop: 14 }, totalLabel: { color: colors.text, fontSize: 18, fontWeight: '900' }, totalValue: { color: colors.redSoft, fontFamily: 'IBMPlexMono_700Bold', fontSize: 17 }, bottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 18, backgroundColor: 'rgba(7,7,8,0.96)' }, primary: { minHeight: 58, backgroundColor: colors.red, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18 }, primaryText: { color: colors.white, fontSize: 15, fontWeight: '900' }, });

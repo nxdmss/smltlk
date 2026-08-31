@@ -1,1 +1,1 @@
-export const rubles = (value: number) => value + ' ₽';
+export const rubles = (value: number) => `${value} ₽`;

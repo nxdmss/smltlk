@@ -1,117 +1,14 @@
-import { Image, Pressable, Text, View } from 'react-native';
-
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import AppHeader from '../components/AppHeader';
-import GlassPanel from '../components/GlassPanel';
+import ProductVisual from '../components/ProductVisual';
 import ScreenScrollView from '../components/ScreenScrollView';
-import { menu } from '../data/menu';
-import { productImages } from '../data/productImages';
 import type { CoffeeShop } from '../data/locations';
-import { styles } from '../styles';
+import { menu } from '../data/menu';
+import { colors } from '../theme';
 import type { CartItem, CartSummary } from '../types';
 import { rubles } from '../utils';
 
-export default function CartScreen({
-  items,
-  summary,
-  location,
-  onBack,
-  onLocations,
-  onQuantityChange,
-  onCheckout,
-}: {
-  items: CartItem[];
-  summary: CartSummary;
-  location: CoffeeShop;
-  onBack: () => void;
-  onLocations: () => void;
-  onQuantityChange: (key: string, delta: number) => void;
-  onCheckout: () => void;
-}) {
-  return (
-    <View style={styles.flex}>
-      <ScreenScrollView screenKey="cart" contentContainerStyle={styles.pageContentWithBar}>
-        <AppHeader title="корзина" onBack={onBack} />
-        <Pressable accessibilityRole="button" onPress={onLocations}>
-          <GlassPanel style={styles.pickupCard}>
-            <View style={styles.pickupPin}>
-              <Text style={styles.pickupPinText}>⌖</Text>
-            </View>
-            <View style={styles.locationCopy}>
-              <Text style={styles.pickupEyebrow}>ТОЧКА САМОВЫВОЗА</Text>
-              <Text numberOfLines={1} style={styles.pickupAddress}>
-                {location.address}
-              </Text>
-            </View>
-            <Text style={styles.changeText}>сменить</Text>
-          </GlassPanel>
-        </Pressable>
-
-        <View style={styles.cartItems}>
-          {items.map((item) => {
-            const product = menu.find((entry) => entry.id === item.productId) ?? menu[0];
-            return (
-              <GlassPanel key={item.key} style={styles.cartItem}>
-                <View style={styles.cartThumb}>
-                  <Image
-                    source={productImages[product.id]}
-                    resizeMode="contain"
-                    style={styles.cartThumbImage}
-                  />
-                </View>
-                <View style={styles.cartItemCopy}>
-                  <Text style={styles.cartItemName}>{item.name}</Text>
-                  <Text style={styles.cartItemDetails}>{item.details}</Text>
-                  <Text style={styles.cartItemPrice}>
-                    {rubles(item.unitPrice * item.quantity)}
-                  </Text>
-                </View>
-                <View style={styles.counter}>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={'Уменьшить ' + item.name}
-                    style={styles.counterButton}
-                    onPress={() => onQuantityChange(item.key, -1)}
-                  >
-                    <Text style={styles.counterText}>−</Text>
-                  </Pressable>
-                  <Text style={styles.counterValue}>{item.quantity}</Text>
-                  <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel={'Увеличить ' + item.name}
-                    style={styles.counterButton}
-                    onPress={() => onQuantityChange(item.key, 1)}
-                  >
-                    <Text style={styles.counterText}>+</Text>
-                  </Pressable>
-                </View>
-              </GlassPanel>
-            );
-          })}
-        </View>
-
-        <GlassPanel style={styles.summaryCard}>
-          <View style={styles.summaryColumn}>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>напитки · {summary.quantity}</Text>
-              <Text style={styles.summaryValue}>{rubles(summary.total)}</Text>
-            </View>
-            <View style={styles.summaryRow}>
-              <Text style={styles.summaryLabel}>самовывоз</Text>
-              <Text style={styles.freeText}>0 ₽</Text>
-            </View>
-            <View style={[styles.summaryRow, styles.summaryTotalRow]}>
-              <Text style={styles.summaryTotalLabel}>итого</Text>
-              <Text style={styles.summaryTotalValue}>{rubles(summary.total)}</Text>
-            </View>
-          </View>
-        </GlassPanel>
-      </ScreenScrollView>
-      <View style={styles.bottomAction}>
-        <Pressable accessibilityRole="button" style={styles.primaryButton} onPress={onCheckout}>
-          <Text style={styles.primaryButtonText}>к оформлению</Text>
-          <Text style={styles.primaryButtonText}>{rubles(summary.total)}</Text>
-        </Pressable>
-      </View>
-    </View>
-  );
+export default function CartScreen({ items, summary, location, onBack, onLocations, onQuantityChange, onCheckout }: { items: CartItem[]; summary: CartSummary; location: CoffeeShop; onBack: () => void; onLocations: () => void; onQuantityChange: (key: string, delta: number) => void; onCheckout: () => void }) {
+  return <View style={{ flex: 1 }}><ScreenScrollView screenKey="cart" contentContainerStyle={s.page}><AppHeader title="корзина" onBack={onBack}/><Text style={s.kicker}>ЗАКАЗ / САМОВЫВОЗ</Text><Text style={s.title}>почти{`\n`}готово.</Text><Pressable onPress={onLocations} style={s.location}><Text style={s.locationTag}>PICK UP</Text><View style={{ flex: 1 }}><Text style={s.locationLabel}>ТОЧКА</Text><Text style={s.locationAddress}>{location.address}</Text></View><Text style={s.change}>сменить</Text></Pressable><View style={s.items}>{items.map(item => { const product = menu.find(p => p.id === item.productId) ?? menu[0]; return <View key={item.key} style={s.item}><View style={s.thumb}><ProductVisual product={product}/></View><View style={s.copy}><Text style={s.itemName}>{item.name}</Text><Text style={s.details}>{item.details}</Text><Text style={s.price}>{rubles(item.unitPrice * item.quantity)}</Text></View><View style={s.counter}><Pressable onPress={() => onQuantityChange(item.key, -1)} style={s.counterButton}><Text style={s.counterButtonText}>−</Text></Pressable><Text style={s.counterValue}>{item.quantity}</Text><Pressable onPress={() => onQuantityChange(item.key, 1)} style={s.counterButton}><Text style={s.counterButtonText}>+</Text></Pressable></View></View>; })}</View><View style={s.summary}><View style={s.row}><Text style={s.summaryLabel}>напитки · {summary.quantity}</Text><Text style={s.summaryValue}>{rubles(summary.total)}</Text></View><View style={s.row}><Text style={s.summaryLabel}>самовывоз</Text><Text style={s.free}>0 ₽</Text></View><View style={[s.row, s.totalRow]}><Text style={s.totalLabel}>итого</Text><Text style={s.totalValue}>{rubles(summary.total)}</Text></View></View></ScreenScrollView><View style={s.bottom}><Pressable onPress={onCheckout} style={s.primary}><Text style={s.primaryText}>к оформлению</Text><Text style={s.primaryText}>{rubles(summary.total)}</Text></Pressable></View></View>;
 }
+const s = StyleSheet.create({ page: { padding: 18, paddingBottom: 120 }, kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.3 }, title: { color: colors.text, fontSize: 48, lineHeight: 45, fontWeight: '900', letterSpacing: -2.8, marginTop: 7, marginBottom: 20 }, location: { minHeight: 72, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, flexDirection: 'row', alignItems: 'center', padding: 10, gap: 10, marginBottom: 18 }, locationTag: { backgroundColor: colors.red, color: colors.white, paddingHorizontal: 9, paddingVertical: 17, fontFamily: 'IBMPlexMono_700Bold', fontSize: 7 }, locationLabel: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, locationAddress: { color: colors.text, fontSize: 13, fontWeight: '900', marginTop: 3 }, change: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, items: { gap: 10 }, item: { minHeight: 140, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, flexDirection: 'row', padding: 8 }, thumb: { width: 106, overflow: 'hidden' }, copy: { flex: 1, padding: 9 }, itemName: { color: colors.text, fontSize: 16, fontWeight: '900' }, details: { color: colors.muted, fontSize: 10.5, lineHeight: 15, marginTop: 5 }, price: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11, marginTop: 'auto' }, counter: { alignItems: 'center', justifyContent: 'center', gap: 5 }, counterButton: { width: 34, height: 34, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panelStrong, alignItems: 'center', justifyContent: 'center' }, counterButtonText: { color: colors.text, fontSize: 19 }, counterValue: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, summary: { borderWidth: 1, borderColor: colors.line, padding: 15, marginTop: 18, backgroundColor: colors.panel }, row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }, summaryLabel: { color: colors.muted, fontSize: 12 }, summaryValue: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, free: { color: colors.redSoft, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, totalRow: { borderTopWidth: 1, borderColor: colors.line, marginTop: 6, paddingTop: 14 }, totalLabel: { color: colors.text, fontSize: 18, fontWeight: '900' }, totalValue: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 17 }, bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, padding: 18, backgroundColor: 'rgba(7,7,8,0.96)' }, primary: { minHeight: 58, backgroundColor: colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18 }, primaryText: { color: colors.white, fontSize: 15, fontWeight: '900' }, });

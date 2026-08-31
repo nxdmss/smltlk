@@ -1,40 +1,9 @@
-import { Pressable, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import BrandMark from '../components/BrandMark';
 import type { CoffeeShop } from '../data/locations';
-import { styles } from '../styles';
+import { colors } from '../theme';
 
-export default function SuccessScreen({
-  location,
-  pickupTime,
-  onNewOrder,
-}: {
-  location: CoffeeShop;
-  pickupTime: string;
-  onNewOrder: () => void;
-}) {
-  return (
-    <LinearGradient colors={['#FF5A20', '#E22E0E', '#9F1608']} style={styles.successPage}>
-      <View style={styles.successGlow} />
-      <View style={styles.successMark}>
-        <BrandMark size={76} />
-      </View>
-      <Text style={styles.successEyebrow}>ORDER ST-104 · PAID</Text>
-      <Text style={styles.successTitle}>уже{'\n'}готовим!</Text>
-      <Text style={styles.successText}>Забери заказ {pickupTime} по адресу</Text>
-      <Text style={styles.successAddress}>{location.address}</Text>
-      <View style={styles.statusTrack}>
-        <View style={styles.statusTrackFilled} />
-      </View>
-      <View style={styles.statusLabels}>
-        <Text style={styles.statusActive}>принят</Text>
-        <Text style={styles.statusMuted}>готовится</Text>
-        <Text style={styles.statusMuted}>готов</Text>
-      </View>
-      <Pressable accessibilityRole="button" style={styles.successButton} onPress={onNewOrder}>
-        <Text style={styles.successButtonText}>на главный экран</Text>
-      </Pressable>
-    </LinearGradient>
-  );
+export default function SuccessScreen({ location, pickupTime, onNewOrder }: { location: CoffeeShop; pickupTime: string; onNewOrder: () => void }) {
+  return <View style={s.page}><View style={s.disc}/><BrandMark size={84}/><Text style={s.kicker}>ORDER ST-104 · ACCEPTED</Text><Text style={s.title}>уже{`\n`}готовим!</Text><View style={s.rule}/><Text style={s.text}>Забери заказ {pickupTime}</Text><Text style={s.address}>{location.address}</Text><View style={s.status}><Text style={s.statusActive}>01 / принят</Text><Text style={s.statusText}>02 / готовится</Text><Text style={s.statusText}>03 / готов</Text></View><Pressable onPress={onNewOrder} style={s.button}><Text style={s.buttonText}>на главный экран</Text><Text style={s.buttonText}>→</Text></Pressable></View>;
 }
+const s = StyleSheet.create({ page: { flex: 1, backgroundColor: colors.bg, padding: 28, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, disc: { position: 'absolute', width: 430, height: 430, backgroundColor: colors.red, opacity: 0.12, top: -190, right: -170 }, kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.4, marginTop: 22 }, title: { color: colors.text, fontSize: 54, lineHeight: 50, fontWeight: '900', letterSpacing: -3.2, textAlign: 'center', marginTop: 10 }, rule: { width: 72, height: 3, backgroundColor: colors.red, marginVertical: 22 }, text: { color: colors.muted, fontSize: 13 }, address: { color: colors.text, fontSize: 17, fontWeight: '900', textAlign: 'center', marginTop: 6 }, status: { width: '100%', borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.line, paddingVertical: 13, marginTop: 30, flexDirection: 'row', justifyContent: 'space-between' }, statusActive: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, statusText: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, button: { minHeight: 58, width: '100%', backgroundColor: colors.red, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, marginTop: 34 }, buttonText: { color: colors.white, fontSize: 15, fontWeight: '900' } });
