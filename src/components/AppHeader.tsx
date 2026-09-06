@@ -1,63 +1,90 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../theme';
+import { colors, layout, spacing, typography } from '../theme';
 import BrandMark from './BrandMark';
 
-export default function AppHeader({ title, onBack }: { title?: string; onBack?: () => void }) {
+export default function AppHeader({
+  title,
+  onBack,
+  compact = false,
+}: {
+  title?: string;
+  onBack?: () => void;
+  compact?: boolean;
+}) {
   return (
-    <View style={styles.header}>
-      <View style={styles.left}>
-        <BrandMark width={52} />
+    <View style={[s.header, compact && s.headerCompact]}>
+      <View style={s.side}>
+        <BrandMark width={compact ? 42 : 48} />
+
         {onBack ? (
-          <Pressable accessibilityRole="button" accessibilityLabel="Назад" onPress={onBack} style={styles.back}>
-            <Text style={styles.backText}>←</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Назад"
+            onPress={onBack}
+            hitSlop={8}
+            style={s.back}
+          >
+            <Text style={s.backText}>←</Text>
           </Pressable>
         ) : null}
       </View>
 
-      {title ? <Text style={styles.title}>{title}</Text> : <View style={styles.centerSpacer} />}
-      <View style={styles.rightSpacer} />
+      {title ? (
+        <Text numberOfLines={1} style={s.title}>
+          {title}
+        </Text>
+      ) : (
+        <View style={s.center} />
+      )}
+
+      <View style={s.side} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   header: {
-    minHeight: 48,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  left: {
-    minWidth: 88,
+    minHeight: layout.headerHeight,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
+    marginBottom: spacing.sm,
   },
+
+  headerCompact: {
+    minHeight: 48,
+    marginBottom: spacing.xs,
+  },
+
+  side: {
+    width: 92,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+
+  center: {
+    flex: 1,
+  },
+
   back: {
-    width: 32,
-    height: 32,
+    width: 30,
+    height: 30,
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   backText: {
     color: colors.text,
+    fontFamily: typography.titleSmall.fontFamily,
     fontSize: 22,
-    fontWeight: '700',
+    lineHeight: 24,
   },
+
   title: {
     flex: 1,
     color: colors.text,
-    fontSize: 20,
-    fontWeight: '900',
-    letterSpacing: -0.8,
+    ...typography.titleSmall,
     textAlign: 'center',
-    paddingTop: 4,
-  },
-  centerSpacer: {
-    flex: 1,
-  },
-  rightSpacer: {
-    width: 88,
   },
 });

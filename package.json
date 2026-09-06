@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@2gis/mapgl": "^1.76.1",
-    "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
+    "@expo-google-fonts/golos-text": "^0.4.2",
     "@expo/metro-runtime": "~57.0.14",
     "expo": "~57.0.18",
     "expo-font": "~57.0.2",
@@ -20,12 +20,12 @@
     "react": "19.2.3",
     "react-dom": "^19.2.3",
     "react-native": "0.86.3",
-    "react-native-maps": "^1.27.2",
+    "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
-    "react-native-webview": "^13.16.0",
-    "react-native-svg": "^15.12.1"
+    "react-native-webview": "^13.16.0"
   },
   "devDependencies": {
+    "@expo/ngrok": "^4.1.0",
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
   }

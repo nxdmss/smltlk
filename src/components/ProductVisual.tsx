@@ -1,23 +1,61 @@
 import { Image, StyleSheet, View } from 'react-native';
+
 import type { Product } from '../data/menu';
 import { productImages } from '../data/productImages';
-import { colors } from '../theme';
+import { colors, productSurfaces } from '../theme';
 
-export default function ProductVisual({ product, hero = false }: { product: Product; hero?: boolean }) {
+export default function ProductVisual({
+  product,
+  hero = false,
+}: {
+  product: Product;
+  hero?: boolean;
+}) {
+  const backgroundColor = productSurfaces[product.category];
+
   return (
-    <View style={[styles.visual, { backgroundColor: product.artColor }, hero && styles.hero]}>
-      <View style={styles.graphicOne} />
-      <View style={styles.graphicTwo} />
-      <Image resizeMode="contain" source={productImages[product.id]} style={[styles.image, hero && styles.imageHero]} />
+    <View
+      style={[
+        hero ? s.hero : s.card,
+        { backgroundColor },
+      ]}
+    >
+      <Image
+        resizeMode="contain"
+        source={productImages[product.id]}
+        style={hero ? s.heroImage : s.cardImage}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  visual: { height: 176, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
-  hero: { height: 260 },
-  graphicOne: { position: 'absolute', width: 180, height: 180, borderRadius: 90, borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)', right: -20, top: -30 },
-  graphicTwo: { position: 'absolute', width: 96, height: 96, backgroundColor: 'rgba(255,255,255,0.12)', left: -18, bottom: -18, transform: [{ rotate: '18deg' }] },
-  image: { width: '90%', height: '116%', transform: [{ translateY: 12 }] },
-  imageHero: { width: '118%', height: '148%', transform: [{ translateX: 8 }, { translateY: 10 }] },
+const s = StyleSheet.create({
+  card: {
+    height: 170,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: colors.paper,
+  },
+
+  cardImage: {
+    width: '92%',
+    height: '94%',
+    transform: [{ translateY: 6 }],
+  },
+
+  hero: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: colors.paper,
+  },
+
+  heroImage: {
+    width: '142%',
+    height: '142%',
+    transform: [{ translateX: 4 }, { translateY: 12 }],
+  },
 });

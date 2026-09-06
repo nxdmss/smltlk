@@ -4,21 +4,9 @@
     "slug": "small-talk-coffee",
     "version": "2.2.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0A0B0D"
-    },
-    "ios": { "supportsTablet": true },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundColor": "#0A0B0D"
-      },
-      "edgeToEdgeEnabled": true
-    },
-    "web": { "favicon": "./assets/favicon.png" }
+    "ios": {
+      "supportsTablet": true
+    }
   }
 }

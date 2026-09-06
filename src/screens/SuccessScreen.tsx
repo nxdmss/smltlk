@@ -1,9 +1,193 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import BrandMark from '../components/BrandMark';
 import type { CoffeeShop } from '../data/locations';
-import { colors } from '../theme';
+import {
+  colors,
+  fonts,
+  layout,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
 
-export default function SuccessScreen({ location, pickupTime, onNewOrder }: { location: CoffeeShop; pickupTime: string; onNewOrder: () => void }) {
-  return <View style={s.page}><View style={s.disc}/><BrandMark width={84}/><Text style={s.kicker}>ORDER ST-104 · ACCEPTED</Text><Text style={s.title}>уже{`\n`}готовим!</Text><View style={s.rule}/><Text style={s.text}>Забери заказ {pickupTime}</Text><Text style={s.address}>{location.address}</Text><View style={s.status}><Text style={s.statusActive}>01 / принят</Text><Text style={s.statusText}>02 / готовится</Text><Text style={s.statusText}>03 / готов</Text></View><Pressable onPress={onNewOrder} style={s.button}><Text style={s.buttonText}>на главный экран</Text><Text style={s.buttonText}>→</Text></Pressable></View>;
+export default function SuccessScreen({
+  location,
+  pickupTime,
+  orderId,
+  onNewOrder,
+}: {
+  location: CoffeeShop;
+  pickupTime: string;
+  orderId: string;
+  onNewOrder: () => void;
+}) {
+  return (
+    <View style={s.page}>
+      <View style={s.top}>
+        <BrandMark width={50} />
+
+        <View style={s.addressCorner}>
+          <Text style={s.addressLabel}>
+            точка
+          </Text>
+
+          <Text
+            numberOfLines={2}
+            style={s.address}
+          >
+            {location.address}
+          </Text>
+        </View>
+      </View>
+
+      <View style={s.center}>
+        <Text style={s.orderLabel}>
+          заказ
+        </Text>
+
+        <Text style={s.orderId}>
+          {orderId}
+        </Text>
+
+        <Text style={s.status}>
+          готовится
+        </Text>
+
+        <View style={s.rule} />
+
+        <Text style={s.pickupLabel}>
+          забрать
+        </Text>
+
+        <Text style={s.pickup}>
+          {pickupTime}
+        </Text>
+      </View>
+
+      <Pressable
+        onPress={onNewOrder}
+        style={s.button}
+      >
+        <Text style={s.buttonText}>
+          на главный экран
+        </Text>
+
+        <Text style={s.buttonArrow}>
+          →
+        </Text>
+      </Pressable>
+    </View>
+  );
 }
-const s = StyleSheet.create({ page: { flex: 1, backgroundColor: colors.bg, padding: 28, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }, disc: { position: 'absolute', width: 430, height: 430, backgroundColor: colors.red, opacity: 0.12, top: -190, right: -170 }, kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.4, marginTop: 22 }, title: { color: colors.text, fontSize: 54, lineHeight: 50, fontWeight: '900', letterSpacing: -3.2, textAlign: 'center', marginTop: 10 }, rule: { width: 72, height: 3, backgroundColor: colors.red, marginVertical: 22 }, text: { color: colors.muted, fontSize: 13 }, address: { color: colors.text, fontSize: 17, fontWeight: '900', textAlign: 'center', marginTop: 6 }, status: { width: '100%', borderTopWidth: 1, borderBottomWidth: 1, borderColor: colors.line, paddingVertical: 13, marginTop: 30, flexDirection: 'row', justifyContent: 'space-between' }, statusActive: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, statusText: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8 }, button: { minHeight: 58, width: '100%', backgroundColor: colors.red, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18, marginTop: 34 }, buttonText: { color: colors.white, fontSize: 15, fontWeight: '900' } });
+
+const s = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor: colors.bg,
+    padding: layout.screenPadding,
+  },
+
+  top: {
+    minHeight: 66,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+  },
+
+  addressCorner: {
+    width: '58%',
+    alignItems: 'flex-end',
+  },
+
+  addressLabel: {
+    color: colors.aqua,
+    ...typography.eyebrow,
+  },
+
+  address: {
+    color: colors.muted,
+    ...typography.caption,
+    textAlign: 'right',
+    marginTop: 3,
+  },
+
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: spacing.xxxl,
+  },
+
+  orderLabel: {
+    color: colors.muted,
+    ...typography.eyebrow,
+  },
+
+  orderId: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 28,
+    lineHeight: 32,
+    letterSpacing: -0.9,
+    marginTop: spacing.xxs,
+  },
+
+  status: {
+    color: colors.red,
+    fontFamily: fonts.black,
+    fontSize: 44,
+    lineHeight: 48,
+    letterSpacing: -2.1,
+    textTransform: 'uppercase',
+    textAlign: 'center',
+    marginTop: spacing.sm,
+  },
+
+  rule: {
+    width: 64,
+    height: 3,
+    backgroundColor: colors.red,
+    marginVertical: spacing.xl,
+  },
+
+  pickupLabel: {
+    color: colors.muted,
+    ...typography.eyebrow,
+  },
+
+  pickup: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 19,
+    lineHeight: 23,
+    marginTop: spacing.xxs,
+  },
+
+  button: {
+    minHeight: layout.buttonHeight,
+    backgroundColor: colors.red,
+    borderRadius: radii.control,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+  },
+
+  buttonText: {
+    color: colors.white,
+    ...typography.button,
+  },
+
+  buttonArrow: {
+    color: colors.white,
+    fontFamily: fonts.regular,
+    fontSize: 20,
+    lineHeight: 22,
+  },
+});

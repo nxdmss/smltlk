@@ -1,65 +1,476 @@
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import type { Product } from '../data/menu';
-import { colors } from '../theme';
-import { rubles } from '../utils';
-import ProductVisual from './ProductVisual';
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-export default function ProductSheet({ product, selectedSize, altMilk, syrup, onSizeChange, onAltMilkChange, onSyrupChange, onClose, onAdd }: {
-  product: Product | null; selectedSize: number; altMilk: boolean; syrup: boolean;
-  onSizeChange: (index: number) => void; onAltMilkChange: () => void; onSyrupChange: () => void; onClose: () => void; onAdd: () => void;
+import type { Product } from '../data/menu';
+import { productImages } from '../data/productImages';
+import {
+  colors,
+  fonts,
+  layout,
+  productSurfaces,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
+import { rubles } from '../utils';
+
+export default function ProductSheet({
+  product,
+  selectedSize,
+  altMilk,
+  syrup,
+  onSizeChange,
+  onAltMilkChange,
+  onSyrupChange,
+  onClose,
+  onAdd,
+}: {
+  product: Product | null;
+  selectedSize: number;
+  altMilk: boolean;
+  syrup: boolean;
+  onSizeChange: (index: number) => void;
+  onAltMilkChange: () => void;
+  onSyrupChange: () => void;
+  onClose: () => void;
+  onAdd: () => void;
 }) {
-  const price = product ? product.sizes[selectedSize].price + (altMilk ? 90 : 0) + (syrup ? 30 : 0) : 0;
+  const total = product
+    ? product.sizes[selectedSize].price +
+      (altMilk ? 90 : 0) +
+      (syrup ? 30 : 0)
+    : 0;
+
   return (
-    <Modal animationType="slide" transparent visible={Boolean(product)} onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} accessibilityLabel="Закрыть" />
-        {product ? <View style={styles.sheet}>
-          <View style={styles.handle} />
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <ProductVisual product={product} hero />
-            <View style={styles.head}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.kicker}>ST/{product.code} · СОБЕРИ СВОЙ НАПИТОК</Text>
-                <Text style={styles.title}>{product.name}</Text>
-                <Text style={styles.description}>{product.description}</Text>
+    <Modal
+      transparent
+      visible={Boolean(product)}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={s.backdrop}>
+        <Pressable
+          accessibilityLabel="Закрыть"
+          onPress={onClose}
+          style={StyleSheet.absoluteFill}
+        />
+
+        {product ? (
+          <View style={s.sheet}>
+            <View style={s.handle} />
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={s.scrollContent}
+            >
+              <View style={s.hero}>
+                <View
+                  style={[
+                    s.visual,
+                    {
+                      backgroundColor:
+                        productSurfaces[product.category],
+                    },
+                  ]}
+                >
+                  <Image
+                    source={productImages[product.id]}
+                    resizeMode="contain"
+                    style={s.visualImage}
+                  />
+                </View>
+
+                <View style={s.heroCopy}>
+                  <View style={s.heroTop}>
+                    <Text style={s.eyebrow}>напиток</Text>
+
+                    <Pressable
+                      accessibilityLabel="Закрыть"
+                      onPress={onClose}
+                      style={s.close}
+                    >
+                      <Text style={s.closeText}>×</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text style={s.title}>{product.name}</Text>
+
+                  <Text
+                    numberOfLines={3}
+                    style={s.description}
+                  >
+                    {product.description}
+                  </Text>
+                </View>
               </View>
-              <Pressable onPress={onClose} style={styles.close}><Text style={styles.closeText}>×</Text></Pressable>
-            </View>
-            <Text style={styles.label}>РАЗМЕР</Text>
-            <View style={styles.row}>{product.sizes.map((size, index) => <Pressable key={size.label} onPress={() => onSizeChange(index)} style={[styles.option, index === selectedSize && styles.optionActive]}><Text style={[styles.optionName, index === selectedSize && styles.optionNameActive]}>{size.label}</Text><Text style={[styles.optionPrice, index === selectedSize && styles.optionNameActive]}>{rubles(size.price)}</Text></Pressable>)}</View>
-            <Text style={styles.label}>ДОБАВИТЬ</Text>
-            <Pressable onPress={onAltMilkChange} style={[styles.extra, altMilk && styles.extraActive]}><Text style={[styles.extraText, altMilk && styles.extraTextActive]}>альтернативное молоко</Text><Text style={[styles.extraPrice, altMilk && styles.extraTextActive]}>{altMilk ? '✓' : '+90 ₽'}</Text></Pressable>
-            <Pressable onPress={onSyrupChange} style={[styles.extra, syrup && styles.extraActive]}><Text style={[styles.extraText, syrup && styles.extraTextActive]}>сироп</Text><Text style={[styles.extraPrice, syrup && styles.extraTextActive]}>{syrup ? '✓' : '+30 ₽'}</Text></Pressable>
-          </ScrollView>
-          <Pressable onPress={onAdd} style={styles.add}><Text style={styles.addText}>добавить</Text><Text style={styles.addText}>{rubles(price)}</Text></Pressable>
-        </View> : null}
+
+              <View style={s.section}>
+                <Text style={s.sectionLabel}>размер</Text>
+
+                <View style={s.sizeList}>
+                  {product.sizes.map((size, index) => {
+                    const active = index === selectedSize;
+
+                    return (
+                      <Pressable
+                        key={size.label}
+                        onPress={() => onSizeChange(index)}
+                        style={[
+                          s.sizeCard,
+                          active && s.sizeCardActive,
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            s.sizeName,
+                            active && s.sizeNameActive,
+                          ]}
+                        >
+                          {size.label}
+                        </Text>
+
+                        <Text
+                          style={[
+                            s.sizePrice,
+                            active && s.sizePriceActive,
+                          ]}
+                        >
+                          {rubles(size.price)}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+
+              <View style={s.section}>
+                <Text style={s.sectionLabel}>добавки</Text>
+
+                <View style={s.extras}>
+                  <ExtraRow
+                    title="альтернативное молоко"
+                    hint="овсяное / кокосовое"
+                    price="+90 ₽"
+                    active={altMilk}
+                    onPress={onAltMilkChange}
+                  />
+
+                  <ExtraRow
+                    title="сироп"
+                    hint="ваниль / карамель"
+                    price="+30 ₽"
+                    active={syrup}
+                    onPress={onSyrupChange}
+                  />
+                </View>
+              </View>
+            </ScrollView>
+
+            <Pressable onPress={onAdd} style={s.cta}>
+              <Text style={s.ctaText}>в корзину</Text>
+              <Text style={s.ctaText}>{rubles(total)}</Text>
+            </Pressable>
+          </View>
+        ) : null}
       </View>
     </Modal>
   );
 }
 
-const styles = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.76)', justifyContent: 'flex-end', alignItems: 'center' },
-  sheet: { width: '100%', maxWidth: 520, maxHeight: '94%', backgroundColor: colors.panel, borderTopLeftRadius: 12, borderTopRightRadius: 12, padding: 18, borderWidth: 1, borderColor: colors.line },
-  handle: { width: 52, height: 4, backgroundColor: colors.line, alignSelf: 'center', marginBottom: 14 },
-  head: { flexDirection: 'row', gap: 12, marginTop: 18 },
-  kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8, letterSpacing: 1.2 },
-  title: { color: colors.text, fontSize: 32, lineHeight: 34, fontWeight: '900', letterSpacing: -1.6, marginTop: 5 },
-  description: { color: colors.muted, fontSize: 13, lineHeight: 19, marginTop: 7 },
-  close: { width: 40, height: 40, backgroundColor: colors.panelStrong, alignItems: 'center', justifyContent: 'center' },
-  closeText: { color: colors.text, fontSize: 24, lineHeight: 26 },
-  label: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.4, marginTop: 22, marginBottom: 9 },
-  row: { flexDirection: 'row', gap: 8 },
-  option: { flex: 1, minHeight: 68, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panelSoft, padding: 12, justifyContent: 'space-between' },
-  optionActive: { backgroundColor: colors.red, borderColor: colors.red },
-  optionName: { color: colors.text, fontWeight: '800', fontSize: 12 },
-  optionNameActive: { color: colors.white },
-  optionPrice: { color: colors.muted, fontFamily: 'IBMPlexMono_600SemiBold', fontSize: 10 },
-  extra: { minHeight: 56, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panelSoft, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 },
-  extraActive: { backgroundColor: colors.red, borderColor: colors.red },
-  extraText: { color: colors.text, fontWeight: '800', fontSize: 13 },
-  extraTextActive: { color: colors.white },
-  extraPrice: { color: colors.muted, fontFamily: 'IBMPlexMono_700Bold', fontSize: 10 },
-  add: { minHeight: 58, backgroundColor: colors.red, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 18, marginTop: 14 },
-  addText: { color: colors.white, fontSize: 16, fontWeight: '900' },
+function ExtraRow({
+  title,
+  hint,
+  price,
+  active,
+  onPress,
+}: {
+  title: string;
+  hint: string;
+  price: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[s.extraRow, active && s.extraRowActive]}
+    >
+      <View style={s.extraCopy}>
+        <Text
+          style={[
+            s.extraTitle,
+            active && s.extraTitleActive,
+          ]}
+        >
+          {title}
+        </Text>
+
+        <Text
+          style={[
+            s.extraHint,
+            active && s.extraHintActive,
+          ]}
+        >
+          {hint}
+        </Text>
+      </View>
+
+      <Text
+        style={[
+          s.extraPrice,
+          active && s.extraPriceActive,
+        ]}
+      >
+        {active ? '✓' : price}
+      </Text>
+    </Pressable>
+  );
+}
+
+const s = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: colors.overlay,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+
+  sheet: {
+    width: '100%',
+    maxWidth: layout.maxWidth,
+    maxHeight: '82%',
+    backgroundColor: colors.panel,
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
+    borderWidth: 1,
+    borderColor: colors.line,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
+  },
+
+  handle: {
+    width: 44,
+    height: 3,
+    backgroundColor: colors.line,
+    alignSelf: 'center',
+    marginBottom: spacing.sm,
+  },
+
+  scrollContent: {
+    paddingBottom: spacing.xs,
+  },
+
+  hero: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingBottom: spacing.md,
+    marginBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+  },
+
+  visual: {
+    width: 104,
+    height: 126,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flexShrink: 0,
+  },
+
+  visualImage: {
+    width: 98,
+    height: 116,
+    transform: [{ translateY: 4 }],
+  },
+
+  heroCopy: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 126,
+  },
+
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.xs,
+  },
+
+  eyebrow: {
+    color: colors.aqua,
+    ...typography.eyebrow,
+    marginTop: 3,
+  },
+
+  close: {
+    width: 32,
+    height: 32,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panelSoft,
+    borderRadius: radii.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  closeText: {
+    color: colors.text,
+    fontFamily: fonts.regular,
+    fontSize: 22,
+    lineHeight: 22,
+  },
+
+  title: {
+    color: colors.text,
+    ...typography.titleMedium,
+    fontSize: 24,
+    lineHeight: 26,
+    marginTop: spacing.xxs,
+  },
+
+  description: {
+    color: colors.muted,
+    ...typography.body,
+    fontSize: 11,
+    lineHeight: 15,
+    marginTop: spacing.xs,
+  },
+
+  section: {
+    marginBottom: spacing.md,
+  },
+
+  sectionLabel: {
+    color: colors.muted,
+    ...typography.eyebrow,
+    marginBottom: spacing.xs,
+  },
+
+  sizeList: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+
+  sizeCard: {
+    flex: 1,
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panelSoft,
+    borderRadius: radii.control,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    justifyContent: 'space-between',
+  },
+
+  sizeCardActive: {
+    backgroundColor: colors.paper,
+    borderColor: colors.paper,
+  },
+
+  sizeName: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    lineHeight: 15,
+  },
+
+  sizeNameActive: {
+    color: colors.black,
+  },
+
+  sizePrice: {
+    color: colors.muted,
+    fontFamily: fonts.medium,
+    fontSize: 10,
+    lineHeight: 13,
+  },
+
+  sizePriceActive: {
+    color: colors.black,
+  },
+
+  extras: {
+    gap: spacing.xs,
+  },
+
+  extraRow: {
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panelSoft,
+    borderRadius: radii.control,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+
+  extraRowActive: {
+    borderColor: colors.aqua,
+  },
+
+  extraCopy: {
+    flex: 1,
+    minWidth: 0,
+  },
+
+  extraTitle: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 12,
+    lineHeight: 15,
+  },
+
+  extraTitleActive: {
+    color: colors.aqua,
+  },
+
+  extraHint: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 9,
+    lineHeight: 12,
+    marginTop: 2,
+  },
+
+  extraHintActive: {
+    color: colors.muted,
+  },
+
+  extraPrice: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    lineHeight: 13,
+  },
+
+  extraPriceActive: {
+    color: colors.aqua,
+  },
+
+  cta: {
+    minHeight: layout.buttonHeight,
+    backgroundColor: colors.red,
+    borderRadius: radii.control,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+  },
+
+  ctaText: {
+    color: colors.white,
+    ...typography.button,
+  },
 });

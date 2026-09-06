@@ -1,15 +1,374 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+
 import AppHeader from '../components/AppHeader';
 import ScreenScrollView from '../components/ScreenScrollView';
 import { coffeeShops } from '../data/locations';
 import type { CoffeeShop } from '../data/locations';
-import { colors } from '../theme';
+import {
+  colors,
+  fonts,
+  layout,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
 import type { CartSummary } from '../types';
-import { rubles } from '../utils';
+import { rubles, twoDigits } from '../utils';
 
-const times = ['через 10 мин', 'через 20 мин', 'через 30 мин'];
-export default function CheckoutScreen({ location, summary, pickupTime, onTimeChange, onBack, onPay }: { location: CoffeeShop; summary: CartSummary; pickupTime: string; onTimeChange: (time: string) => void; onBack: () => void; onPay: () => void }) {
-  const number = coffeeShops.findIndex(s => s.id === location.id) + 1;
-  return <View style={{ flex: 1 }}><ScreenScrollView screenKey="checkout" contentContainerStyle={s.page}><AppHeader title="оформление" onBack={onBack}/><Text style={s.kicker}>FINAL STEP / ST ORDER</Text><Text style={s.title}>забрать{`\n`}и говорить.</Text><Text style={s.heading}>точка</Text><View style={s.location}><View style={s.number}><Text style={s.numberText}>0{number}</Text></View><View style={{ flex: 1 }}><Text style={s.address}>{location.address}</Text><Text style={s.meta}>заказ будет ждать у стойки</Text></View></View><Text style={s.heading}>когда приготовить?</Text><View style={s.timeGrid}>{times.map(time => { const active = time === pickupTime; return <Pressable key={time} onPress={() => onTimeChange(time)} style={[s.time, active && s.timeActive]}><Text style={[s.timeText, active && s.timeTextActive]}>{time}</Text></Pressable>; })}</View><Text style={s.heading}>предоплата</Text><View style={s.payment}><View style={s.cardIcon}><Text style={s.cardIconText}>▰</Text></View><View style={{ flex: 1 }}><Text style={s.paymentTitle}>банковская карта</Text><Text style={s.meta}>демо · деньги не списываются</Text></View><Text style={s.arrow}>→</Text></View><Text style={s.notice}>Заказ попадёт бариста после подтверждения оплаты.</Text><View style={s.summary}><View style={s.row}><Text style={s.label}>товары</Text><Text style={s.value}>{rubles(summary.total)}</Text></View><View style={[s.row, s.total]}><Text style={s.totalLabel}>к оплате</Text><Text style={s.totalValue}>{rubles(summary.total)}</Text></View></View></ScreenScrollView><View style={s.bottom}><Pressable onPress={onPay} style={s.primary}><Text style={s.primaryText}>оплатить</Text><Text style={s.primaryText}>{rubles(summary.total)}</Text></Pressable></View></View>;
+const pickupTimes = [
+  'через 10 мин',
+  'через 20 мин',
+  'через 30 мин',
+];
+
+export default function CheckoutScreen({
+  location,
+  summary,
+  pickupTime,
+  onTimeChange,
+  onBack,
+  onPay,
+}: {
+  location: CoffeeShop;
+  summary: CartSummary;
+  pickupTime: string;
+  onTimeChange: (time: string) => void;
+  onBack: () => void;
+  onPay: () => void;
+}) {
+  const shopNumber = twoDigits(
+    coffeeShops.findIndex(
+      (shop) => shop.id === location.id,
+    ) + 1,
+  );
+
+  return (
+    <View style={s.screen}>
+      <ScreenScrollView
+        screenKey="checkout"
+        contentContainerStyle={s.page}
+      >
+        <AppHeader
+          title="оформление"
+          onBack={onBack}
+          compact
+        />
+
+        <View style={s.locationRow}>
+          <Text style={s.locationNo}>
+            {shopNumber}
+          </Text>
+
+          <Text
+            numberOfLines={1}
+            style={s.locationAddress}
+          >
+            {location.address}
+          </Text>
+        </View>
+
+        <Text style={s.sectionLabel}>
+          когда приготовить
+        </Text>
+
+        <View style={s.timeGrid}>
+          {pickupTimes.map((time) => {
+            const active =
+              time === pickupTime;
+
+            return (
+              <Pressable
+                key={time}
+                onPress={() =>
+                  onTimeChange(time)
+                }
+                style={[
+                  s.time,
+                  active && s.timeActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    s.timeText,
+                    active &&
+                      s.timeTextActive,
+                  ]}
+                >
+                  {time}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Text style={s.sectionLabel}>
+          оплата
+        </Text>
+
+        <View style={s.payment}>
+          <View style={s.paymentCopy}>
+            <Text style={s.paymentTitle}>
+              банковская карта
+            </Text>
+
+            <Text style={s.paymentMeta}>
+              демо · деньги не списываются
+            </Text>
+          </View>
+
+          <Text style={s.paymentMark}>
+            VISA / МИР
+          </Text>
+        </View>
+
+        <Text style={s.notice}>
+          После подтверждения оплаты заказ
+          сразу появится у бариста.
+        </Text>
+
+        <View style={s.summary}>
+          <View style={s.row}>
+            <Text style={s.label}>
+              товары
+            </Text>
+
+            <Text style={s.value}>
+              {rubles(summary.total)}
+            </Text>
+          </View>
+
+          <View
+            style={[
+              s.row,
+              s.totalRow,
+            ]}
+          >
+            <Text style={s.totalLabel}>
+              к оплате
+            </Text>
+
+            <Text style={s.totalValue}>
+              {rubles(summary.total)}
+            </Text>
+          </View>
+        </View>
+      </ScreenScrollView>
+
+      <View style={s.bottom}>
+        <Pressable
+          onPress={onPay}
+          style={s.primary}
+        >
+          <Text style={s.primaryText}>
+            оплатить
+          </Text>
+
+          <Text style={s.primaryText}>
+            {rubles(summary.total)}
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  );
 }
-const s = StyleSheet.create({ page: { padding: 18, paddingBottom: 120 }, kicker: { color: colors.aqua, fontFamily: 'IBMPlexMono_700Bold', fontSize: 9, letterSpacing: 1.3 }, title: { color: colors.text, fontSize: 45, lineHeight: 43, fontWeight: '900', letterSpacing: -2.6, marginTop: 7, marginBottom: 22 }, heading: { color: colors.text, fontSize: 20, fontWeight: '900', letterSpacing: -0.7, marginTop: 14, marginBottom: 9 }, location: { minHeight: 78, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, flexDirection: 'row', alignItems: 'center', padding: 11 }, number: { width: 50, height: 50, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 11 }, numberText: { color: colors.white, fontFamily: 'IBMPlexMono_700Bold', fontSize: 13 }, address: { color: colors.text, fontSize: 14, fontWeight: '900' }, meta: { color: colors.muted, fontFamily: 'IBMPlexMono_500Medium', fontSize: 8.5, marginTop: 4 }, timeGrid: { flexDirection: 'row', gap: 7 }, time: { flex: 1, minHeight: 58, borderWidth: 1, borderColor: colors.line, backgroundColor: colors.panel, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 5 }, timeActive: { backgroundColor: colors.red, borderColor: colors.red }, timeText: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 8.5, textAlign: 'center' }, timeTextActive: { color: colors.white }, payment: { minHeight: 80, borderWidth: 1, borderColor: colors.line, flexDirection: 'row', alignItems: 'center', padding: 11, backgroundColor: colors.panel }, cardIcon: { width: 50, height: 50, backgroundColor: colors.red, alignItems: 'center', justifyContent: 'center', marginRight: 10 }, cardIconText: { color: colors.white, fontSize: 22 }, paymentTitle: { color: colors.text, fontSize: 14, fontWeight: '900' }, arrow: { color: colors.text, fontSize: 20 }, notice: { color: colors.muted, fontSize: 10.5, lineHeight: 15, marginTop: 8 }, summary: { borderWidth: 1, borderColor: colors.line, padding: 15, marginTop: 20, backgroundColor: colors.panel }, row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }, label: { color: colors.muted, fontSize: 12 }, value: { color: colors.text, fontFamily: 'IBMPlexMono_700Bold', fontSize: 11 }, total: { borderTopWidth: 1, borderColor: colors.line, marginTop: 5, paddingTop: 14 }, totalLabel: { color: colors.text, fontSize: 18, fontWeight: '900' }, totalValue: { color: colors.redSoft, fontFamily: 'IBMPlexMono_700Bold', fontSize: 17 }, bottom: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 18, backgroundColor: 'rgba(7,7,8,0.96)' }, primary: { minHeight: 58, backgroundColor: colors.red, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 18 }, primaryText: { color: colors.white, fontSize: 15, fontWeight: '900' }, });
+
+const s = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+
+  page: {
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: spacing.sm,
+    paddingBottom: 116,
+  },
+
+  locationRow: {
+    minHeight: 46,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.line,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xl,
+  },
+
+  locationNo: {
+    color: colors.aqua,
+    ...typography.eyebrow,
+    width: 28,
+  },
+
+  locationAddress: {
+    flex: 1,
+    color: colors.muted,
+    fontFamily: fonts.medium,
+    fontSize: 10,
+    lineHeight: 13,
+  },
+
+  sectionLabel: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    lineHeight: 22,
+    letterSpacing: -0.35,
+    marginBottom: spacing.xs,
+  },
+
+  timeGrid: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+    marginBottom: spacing.xl,
+  },
+
+  time: {
+    flex: 1,
+    minHeight: 58,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xxs,
+  },
+
+  timeActive: {
+    backgroundColor: colors.red,
+    borderColor: colors.red,
+  },
+
+  timeText: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 9,
+    lineHeight: 12,
+    textAlign: 'center',
+  },
+
+  timeTextActive: {
+    color: colors.white,
+  },
+
+  payment: {
+    minHeight: 72,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.sm,
+  },
+
+  paymentCopy: {
+    flex: 1,
+  },
+
+  paymentTitle: {
+    color: colors.text,
+    ...typography.bodyStrong,
+    fontSize: 14,
+  },
+
+  paymentMeta: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 9,
+    lineHeight: 12,
+    marginTop: 3,
+  },
+
+  paymentMark: {
+    color: colors.aqua,
+    ...typography.eyebrow,
+    letterSpacing: 0.45,
+  },
+
+  notice: {
+    color: colors.muted,
+    ...typography.body,
+    fontSize: 10,
+    lineHeight: 15,
+    marginTop: spacing.xs,
+  },
+
+  summary: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: colors.line,
+    marginTop: spacing.xl,
+    paddingVertical: spacing.sm,
+  },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.xxs,
+  },
+
+  label: {
+    color: colors.muted,
+    ...typography.body,
+  },
+
+  value: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 11,
+    lineHeight: 14,
+  },
+
+  totalRow: {
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+    marginTop: spacing.xs,
+    paddingTop: spacing.sm,
+  },
+
+  totalLabel: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    lineHeight: 22,
+  },
+
+  totalValue: {
+    color: colors.red,
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    lineHeight: 22,
+  },
+
+  bottom: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: layout.screenPadding,
+    backgroundColor: 'rgba(7,7,8,0.96)',
+  },
+
+  primary: {
+    minHeight: layout.buttonHeight,
+    backgroundColor: colors.red,
+    borderRadius: radii.control,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: spacing.md,
+  },
+
+  primaryText: {
+    color: colors.white,
+    ...typography.button,
+  },
+});

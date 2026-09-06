@@ -1,45 +1,42 @@
 import { StyleSheet, View } from 'react-native';
+
 import { colors } from '../theme';
 
 export default function AmbientBackground() {
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bg }]} />
-      <View style={styles.glowTop} />
-      <View style={styles.glowBottom} />
-      <View style={styles.line} />
+      <View style={s.base} />
+      <View style={s.orangeGlow} />
+      <View style={s.blueGlow} />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  glowTop: {
+const s = StyleSheet.create({
+  base: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: colors.bg,
+  },
+
+  orangeGlow: {
     position: 'absolute',
-    width: 320,
-    height: 320,
-    borderRadius: 160,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
     backgroundColor: colors.red,
-    opacity: 0.12,
-    right: -160,
+    opacity: 0.055,
     top: 70,
+    right: -190,
   },
-  glowBottom: {
+
+  blueGlow: {
     position: 'absolute',
-    width: 260,
-    height: 260,
-    borderRadius: 130,
-    backgroundColor: colors.redDeep,
-    opacity: 0.14,
-    left: -140,
-    bottom: 40,
-  },
-  line: {
-    position: 'absolute',
-    width: 220,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    left: -40,
-    top: 420,
-    transform: [{ rotate: '-20deg' }],
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: colors.aqua,
+    opacity: 0.025,
+    left: -170,
+    bottom: 80,
   },
 });

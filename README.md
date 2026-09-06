@@ -1,23 +1,35 @@
-# Small Talk Coffee — 2GIS build
+# Small Talk Coffee
 
-This is the full Small Talk Coffee Expo project with the brandbook redesign and a real 2GIS map.
+React Native + Expo application for Small Talk Coffee pickup orders.
 
 ## Run
 
 ```bash
 npm install
-npm start
+npx expo start
 ```
 
-Web: press `w` in Expo or open http://localhost:8081.
+## Environment
 
-## 2GIS
+Create `.env` from `.env.example`:
 
-The demo MapGL key is stored in `.env` as `EXPO_PUBLIC_2GIS_KEY`.
+```env
+EXPO_PUBLIC_2GIS_KEY=...
+EXPO_PUBLIC_2GIS_STYLE_ID=
+```
 
-- Web uses the official `@2gis/mapgl` package.
-- iOS/Android in Expo Go use 2GIS MapGL inside `react-native-webview`, so the map visually and geographically matches 2GIS without requiring a paid native Mobile SDK key yet.
-- Map zoom, pan, 2GIS controls, traffic control, scale, roads/buildings and 2GIS copyright are provided by MapGL.
-- Small Talk branches use branded numbered HTML markers.
+`EXPO_PUBLIC_2GIS_STYLE_ID` is optional. Add a style ID from the 2GIS Style Editor when the final dark map style is ready.
 
-For production, restrict/replace the demo key in 2GIS Platform Manager and do not commit `.env` to a public repository.
+## Structure
+
+- `App.tsx` — application state and screen flow
+- `src/data` — locations, menu, product image mapping
+- `src/components` — reusable UI
+- `src/screens` — application screens
+- `src/theme.ts` — colors, typography, spacing, radii and layout tokens
+
+## Typecheck
+
+```bash
+npm run typecheck
+```
