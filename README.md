@@ -33,3 +33,7 @@ EXPO_PUBLIC_2GIS_STYLE_ID=
 ```bash
 npm run typecheck
 ```
+
+
+
+npx expo start -c
