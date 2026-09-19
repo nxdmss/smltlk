@@ -6,7 +6,6 @@ import type { CoffeeShop } from '../data/locations';
 import { colors, fonts } from '../theme';
 
 const MAP_KEY = process.env.EXPO_PUBLIC_2GIS_KEY;
-const MAP_STYLE_ID = process.env.EXPO_PUBLIC_2GIS_STYLE_ID;
 
 function buildHtml(shops: CoffeeShop[]) {
   const points = shops.map((shop, index) => ({
@@ -38,17 +37,18 @@ function buildHtml(shops: CoffeeShop[]) {
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <style>
-html,body,#map{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#070708}
+html,body,#map{width:100%;height:100%;margin:0;padding:0;overflow:hidden;background:#FFFFFF}
 *{box-sizing:border-box}
-${fallbackFilter}
 .st-pin{
-  width:42px;height:42px;border-radius:4px;border:0;
+  width:42px;height:42px;box-sizing:border-box;border-radius:7px;
+  border:2px solid rgba(255,255,255,.96);
   background:#FA4713;color:#fff;display:flex;align-items:center;justify-content:center;
-  font:700 10px sans-serif;box-shadow:none;transition:160ms ease;padding:0
+  font:700 10px sans-serif;box-shadow:0 5px 14px rgba(0,0,0,.16);
+  transition:160ms ease;padding:0
 }
 .st-pin.active{
-  width:48px;height:48px;background:#6BCBDD;color:#070708;
-  box-shadow:none;transform:translateY(-3px)
+  width:42px;height:42px;background:#6BCBDD;color:#000;
+  box-shadow:0 7px 18px rgba(0,0,0,.22);transform:none
 }
 </style>
 </head>
@@ -61,13 +61,12 @@ const map = new mapgl.Map('map', {
   key: ${JSON.stringify(MAP_KEY || '')},
   center: [${center.longitude}, ${center.latitude}],
   styleZoom: 14.4,
-  ${styleOption}
   zoomControl: false,
   trafficControl: false,
   floorControl: false,
   scaleControl: false,
   copyright: 'bottomRight',
-  defaultBackgroundColor: '#070708',
+  defaultBackgroundColor: '#F6F7F5',
   graphicsPreset: 'light',
   styleState: {
     trafficOn: false,
@@ -100,7 +99,7 @@ points.forEach((point) => {
   const marker = new mapgl.HtmlMarker(map, {
     coordinates: [point.longitude, point.latitude],
     html: el,
-    anchor: [24,48],
+    anchor: [21,42],
     interactive: true
   });
 
@@ -179,15 +178,15 @@ const s = StyleSheet.create({
   wrap: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#070708',
+    backgroundColor: '#FFFFFF',
   },
   webview: {
     flex: 1,
-    backgroundColor: '#070708',
+    backgroundColor: '#FFFFFF',
   },
   error: {
     flex: 1,
-    backgroundColor: '#070708',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 28,

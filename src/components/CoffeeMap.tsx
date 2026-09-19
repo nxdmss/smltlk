@@ -7,7 +7,6 @@ import { colors, fonts } from '../theme';
 import { twoDigits } from '../utils';
 
 const MAP_KEY = process.env.EXPO_PUBLIC_2GIS_KEY;
-const MAP_STYLE_ID = process.env.EXPO_PUBLIC_2GIS_STYLE_ID;
 
 type MarkerEntry = {
   marker: any;
@@ -16,14 +15,17 @@ type MarkerEntry = {
 };
 
 function setMarkerState(element: HTMLElement, active: boolean) {
-  element.style.width = active ? '48px' : '42px';
-  element.style.height = active ? '48px' : '42px';
-  element.style.borderRadius = '4px';
+  element.style.width = '42px';
+  element.style.height = '42px';
+  element.style.boxSizing = 'border-box';
+  element.style.borderRadius = '7px';
   element.style.background = active ? colors.aqua : colors.red;
-  element.style.border = '0';
-  element.style.boxShadow = 'none';
-  element.style.color = active ? '#070708' : colors.white;
-  element.style.transform = active ? 'translateY(-3px)' : 'translateY(0)';
+  element.style.border = '2px solid rgba(255,255,255,0.96)';
+  element.style.boxShadow = active
+    ? '0 7px 18px rgba(0,0,0,0.22)'
+    : '0 5px 14px rgba(0,0,0,0.16)';
+  element.style.color = active ? colors.black : colors.white;
+  element.style.transform = 'translateY(0)';
 }
 
 function createPin(index: number, active: boolean) {
@@ -46,14 +48,6 @@ function createPin(index: number, active: boolean) {
   return button;
 }
 
-function applyDarkFallback(containerId: string) {
-  if (MAP_STYLE_ID) return;
-  const root = document.getElementById(containerId);
-  root?.querySelectorAll('canvas').forEach((canvas) => {
-    canvas.style.filter =
-      'brightness(.28) saturate(.38) contrast(1.12) hue-rotate(2deg)';
-  });
-}
 
 export default function CoffeeMap({
   shops,
@@ -103,13 +97,12 @@ export default function CoffeeMap({
           key: MAP_KEY,
           center,
           styleZoom: 14.4,
-          ...(MAP_STYLE_ID ? { style: MAP_STYLE_ID } : {}),
           zoomControl: false,
           trafficControl: false,
           floorControl: false,
           scaleControl: false,
           copyright: 'bottomRight',
-          defaultBackgroundColor: '#070708',
+          defaultBackgroundColor: '#F6F7F5',
           graphicsPreset: 'light',
           styleState: {
             trafficOn: false,
@@ -126,13 +119,6 @@ export default function CoffeeMap({
           left: 8,
         });
 
-        if (!MAP_STYLE_ID) {
-          const apply = () => applyDarkFallback(containerId.current);
-          setTimeout(apply, 100);
-          setTimeout(apply, 450);
-          setTimeout(apply, 1100);
-          map.on?.('styleload', apply);
-        }
 
         mapRef.current = map;
 
@@ -149,7 +135,7 @@ export default function CoffeeMap({
               shop.coordinate.latitude,
             ],
             html: element,
-            anchor: [24, 48],
+            anchor: [21, 42],
             interactive: true,
             zIndex: shop.id === selectedId ? 20 : 10,
           });
@@ -209,7 +195,7 @@ const s = StyleSheet.create({
   mapWrap: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#070708',
+    backgroundColor: '#FFFFFF',
   },
   error: {
     position: 'absolute',
@@ -217,7 +203,7 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
     left: 0,
-    backgroundColor: '#070708',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 28,

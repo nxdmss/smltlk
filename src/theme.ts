@@ -1,12 +1,12 @@
 export const colors = {
-  bg: '#070708',
-  panel: '#111214',
-  panelSoft: '#17191D',
-  panelStrong: '#1D2025',
-  line: '#2B2F36',
+  bg: '#FFFFFF',
+  panel: '#F7F7F5',
+  panelSoft: '#F3F3F0',
+  panelStrong: '#EBECE8',
+  line: '#DDDFDA',
 
-  text: '#FFFFFF',
-  muted: '#9DA2A9',
+  text: '#0B0C0D',
+  muted: '#70747A',
 
   red: '#FA4713',
   redDeep: '#CB3508',
@@ -14,10 +14,10 @@ export const colors = {
 
   white: '#FFFFFF',
   black: '#000000',
-  paper: '#F2EEE8',
-  paperSoft: '#E7E0D7',
+  paper: '#F4F1EC',
+  paperSoft: '#EAE6DF',
 
-  overlay: 'rgba(0,0,0,0.74)',
+  overlay: 'rgba(0,0,0,0.42)',
 } as const;
 
 export const spacing = {

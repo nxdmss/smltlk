@@ -434,7 +434,7 @@ const s = StyleSheet.create({
     right: 0,
     bottom: 0,
     padding: layout.screenPadding,
-    backgroundColor: 'rgba(7,7,8,0.96)',
+    backgroundColor: 'rgba(255,255,255,0.97)',
   },
 
   primary: {

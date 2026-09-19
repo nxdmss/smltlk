@@ -382,7 +382,7 @@ export default function App() {
     <SafeAreaView
       style={styles.safeArea}
     >
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
 
       <View style={styles.appShell}>
         <AmbientBackground />
