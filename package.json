@@ -8,7 +8,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "web:export": "expo export --platform web && node scripts/fix-pwa-after-export.mjs && node scripts/fix-ios-fullscreen.mjs && node scripts/fix-iphone-edge-to-edge.mjs",
+    "web:preview": "npx serve dist"
   },
   "dependencies": {
     "@2gis/mapgl": "^1.76.1",
@@ -20,6 +22,7 @@
     "react": "19.2.3",
     "react-dom": "^19.2.3",
     "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "15.15.4",
     "react-native-web": "^0.21.2",
     "react-native-webview": "^13.16.0"

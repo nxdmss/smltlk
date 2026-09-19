@@ -1,0 +1,418 @@
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import type { Product } from '../data/menu';
+import { productImages } from '../data/productImages';
+import {
+  colors,
+  fonts,
+  layout,
+  productSurfaces,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
+import { rubles } from '../utils';
+
+export default function ProductSheet({
+  product,
+  selectedSize,
+  altMilk,
+  syrup,
+  onSizeChange,
+  onAltMilkChange,
+  onSyrupChange,
+  onClose,
+  onAdd,
+}: {
+  product: Product | null;
+  selectedSize: number;
+  altMilk: boolean;
+  syrup: boolean;
+  onSizeChange: (index: number) => void;
+  onAltMilkChange: () => void;
+  onSyrupChange: () => void;
+  onClose: () => void;
+  onAdd: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  const total = product
+    ? product.sizes[selectedSize].price +
+      (altMilk ? 90 : 0) +
+      (syrup ? 30 : 0)
+    : 0;
+
+  return (
+    <Modal
+      visible={Boolean(product)}
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={onClose}
+    >
+      {product ? (
+        <View style={s.screen}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              s.scrollContent,
+              {
+                paddingTop: insets.top + spacing.xs,
+                paddingBottom: 150 + insets.bottom,
+              },
+            ]}
+          >
+            <View
+              style={[
+                s.hero,
+                {
+                  backgroundColor:
+                    productSurfaces[product.category],
+                },
+              ]}
+            >
+              <Pressable
+                accessibilityLabel="Назад"
+                onPress={onClose}
+                style={s.back}
+              >
+                <Text style={s.backText}>‹</Text>
+              </Pressable>
+
+              <Image
+                source={productImages[product.id]}
+                resizeMode="contain"
+                style={s.heroImage}
+              />
+            </View>
+
+            <View style={s.copy}>
+              <Text style={s.kicker}>напиток</Text>
+              <Text style={s.title}>{product.name}</Text>
+              <Text style={s.description}>{product.description}</Text>
+            </View>
+
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>размер</Text>
+
+              <View style={s.optionRow}>
+                {product.sizes.map((size, index) => {
+                  const active = index === selectedSize;
+
+                  return (
+                    <Pressable
+                      key={`${size.label}-${index}`}
+                      onPress={() => onSizeChange(index)}
+                      style={[
+                        s.optionCard,
+                        active && s.optionCardActive,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          s.optionTitle,
+                          active && s.optionTitleActive,
+                        ]}
+                      >
+                        {size.label}
+                      </Text>
+
+                      <Text
+                        style={[
+                          s.optionPrice,
+                          active && s.optionPriceActive,
+                        ]}
+                      >
+                        {rubles(size.price)}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={s.section}>
+              <Text style={s.sectionTitle}>настроить</Text>
+
+              <View style={s.optionRow}>
+                <OptionCard
+                  title="молоко"
+                  subtitle="альтернативное"
+                  price="+90 ₽"
+                  active={altMilk}
+                  onPress={onAltMilkChange}
+                />
+
+                <OptionCard
+                  title="сироп"
+                  subtitle="добавить"
+                  price="+30 ₽"
+                  active={syrup}
+                  onPress={onSyrupChange}
+                />
+              </View>
+            </View>
+          </ScrollView>
+
+          <View
+            style={[
+              s.bottomBar,
+              {
+                paddingBottom: Math.max(insets.bottom, spacing.sm),
+              },
+            ]}
+          >
+            <View style={s.selectedSize}>
+              <Text style={s.selectedSizeText}>
+                {product.sizes[selectedSize].label}
+              </Text>
+            </View>
+
+            <Pressable onPress={onAdd} style={s.cta}>
+              <Text style={s.ctaText}>+ {rubles(total)}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+    </Modal>
+  );
+}
+
+function OptionCard({
+  title,
+  subtitle,
+  price,
+  active,
+  onPress,
+}: {
+  title: string;
+  subtitle: string;
+  price: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        s.optionCard,
+        active && s.optionCardActive,
+      ]}
+    >
+      <Text
+        style={[
+          s.optionTitle,
+          active && s.optionTitleActive,
+        ]}
+      >
+        {title}
+      </Text>
+
+      <Text style={s.optionSubtitle}>{subtitle}</Text>
+
+      <Text
+        style={[
+          s.optionPrice,
+          active && s.optionPriceActive,
+        ]}
+      >
+        {active ? 'выбрано' : price}
+      </Text>
+    </Pressable>
+  );
+}
+
+const s = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+
+  scrollContent: {
+    paddingBottom: 160,
+  },
+
+  hero: {
+    height: 390,
+    marginHorizontal: layout.screenPadding,
+    borderRadius: radii.sheet,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  back: {
+    position: 'absolute',
+    left: spacing.sm,
+    top: spacing.sm,
+    zIndex: 4,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+
+  backText: {
+    color: colors.black,
+    fontFamily: fonts.regular,
+    fontSize: 39,
+    lineHeight: 39,
+    marginTop: -4,
+  },
+
+  heroImage: {
+    width: '84%',
+    height: '84%',
+  },
+
+  copy: {
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: spacing.lg,
+  },
+
+  kicker: {
+    color: colors.red,
+    ...typography.eyebrow,
+    marginBottom: spacing.xs,
+  },
+
+  title: {
+    color: colors.text,
+    fontFamily: fonts.black,
+    fontSize: 34,
+    lineHeight: 36,
+    letterSpacing: -1.2,
+  },
+
+  description: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: spacing.xs,
+  },
+
+  section: {
+    paddingHorizontal: layout.screenPadding,
+    marginTop: spacing.xl,
+  },
+
+  sectionTitle: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    lineHeight: 18,
+    marginBottom: spacing.sm,
+  },
+
+  optionRow: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+
+  optionCard: {
+    flex: 1,
+    minHeight: 118,
+    borderRadius: radii.control,
+    backgroundColor: colors.panel,
+    borderWidth: 1,
+    borderColor: colors.line,
+    padding: spacing.sm,
+    justifyContent: 'flex-end',
+  },
+
+  optionCardActive: {
+    backgroundColor: colors.aqua,
+    borderColor: colors.aqua,
+  },
+
+  optionTitle: {
+    color: colors.text,
+    fontFamily: fonts.bold,
+    fontSize: 15,
+    lineHeight: 18,
+  },
+
+  optionTitleActive: {
+    color: colors.black,
+  },
+
+  optionSubtitle: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    lineHeight: 13,
+    marginTop: 2,
+  },
+
+  optionPrice: {
+    color: colors.muted,
+    fontFamily: fonts.semibold,
+    fontSize: 11,
+    lineHeight: 14,
+    marginTop: spacing.sm,
+  },
+
+  optionPriceActive: {
+    color: colors.black,
+  },
+
+  bottomBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    gap: spacing.xs,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: spacing.sm,
+    backgroundColor: colors.bg,
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+  },
+
+  selectedSize: {
+    minWidth: 116,
+    minHeight: layout.buttonHeight,
+    paddingHorizontal: spacing.md,
+    borderRadius: radii.control,
+    backgroundColor: colors.panelStrong,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  selectedSizeText: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 15,
+    lineHeight: 18,
+  },
+
+  cta: {
+    flex: 1,
+    minHeight: layout.buttonHeight,
+    borderRadius: radii.control,
+    backgroundColor: colors.red,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  ctaText: {
+    color: colors.white,
+    fontFamily: fonts.black,
+    fontSize: 18,
+    lineHeight: 22,
+  },
+});

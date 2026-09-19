@@ -11,9 +11,11 @@ export default function ScreenScrollView({
   children,
   screenKey,
   contentContainerStyle,
+  stickyHeaderIndices,
 }: PropsWithChildren<{
   screenKey: string;
   contentContainerStyle: StyleProp<ViewStyle>;
+  stickyHeaderIndices?: number[];
 }>) {
   const scrollRef = useRef<ScrollView | null>(null);
 
@@ -36,6 +38,7 @@ export default function ScreenScrollView({
     <ScrollView
       ref={scrollRef}
       contentContainerStyle={contentContainerStyle}
+      stickyHeaderIndices={stickyHeaderIndices}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
     >

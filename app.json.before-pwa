@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Small Talk Coffee",
+    "slug": "small-talk-coffee",
+    "version": "2.2.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true
+    }
+  }
+}

@@ -8,6 +8,9 @@ import { twoDigits } from '../utils';
 
 const MAP_KEY = process.env.EXPO_PUBLIC_2GIS_KEY;
 
+const DEFAULT_MAP_LONGITUDE_OFFSET = 0.0025;
+const DEFAULT_MAP_ZOOM = 14.0;
+
 type MarkerEntry = {
   marker: any;
   element: HTMLElement;
@@ -53,14 +56,17 @@ export default function CoffeeMap({
   shops,
   selectedId,
   onSelect,
+  onMapPress,
 }: {
   shops: CoffeeShop[];
   selectedId: string;
   onSelect: (shop: CoffeeShop) => void;
+  onMapPress?: () => void;
 }) {
   const mapRef = useRef<any>(null);
   const markerRefs = useRef<MarkerEntry[]>([]);
   const onSelectRef = useRef(onSelect);
+  const onMapPressRef = useRef(onMapPress);
   const [error, setError] = useState('');
 
   const containerId = useRef(
@@ -74,12 +80,66 @@ export default function CoffeeMap({
     const latitude =
       shops.reduce((sum, shop) => sum + shop.coordinate.latitude, 0) /
       shops.length;
-    return [longitude, latitude];
+    return [longitude + DEFAULT_MAP_LONGITUDE_OFFSET, latitude];
   }, [shops]);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
   }, [onSelect]);
+
+  useEffect(() => {
+    const id = containerId.current;
+    const styleId = `smltlk-map-fullscreen-style-${id}`;
+
+    let style = document.getElementById(
+      styleId,
+    ) as HTMLStyleElement | null;
+
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        #${id} {
+          position: fixed !important;
+          inset: 0 !important;
+          top: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          left: 0 !important;
+          width: 100vw !important;
+          height: var(--smltlk-app-height, 100vh) !important;
+          min-height: var(--smltlk-app-height, 100vh) !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          background: #F6F7F5 !important;
+          z-index: 0 !important;
+        }
+
+        #${id} > div,
+        #${id} canvas {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+
+        @supports (height: 100dvh) {
+          #${id} {
+            height: var(--smltlk-app-height, 100vh) !important;
+            min-height: var(--smltlk-app-height, 100vh) !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    return () => {
+      style?.remove();
+    };
+  }, []);
+
+
+  useEffect(() => {
+    onMapPressRef.current = onMapPress;
+  }, [onMapPress]);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,7 +156,7 @@ export default function CoffeeMap({
         const map = new mapglAPI.Map(containerId.current, {
           key: MAP_KEY,
           center,
-          styleZoom: 14.4,
+          styleZoom: DEFAULT_MAP_ZOOM,
           zoomControl: false,
           trafficControl: false,
           floorControl: false,
@@ -119,6 +179,10 @@ export default function CoffeeMap({
           left: 8,
         });
 
+
+        map.on('click', () => {
+          onMapPressRef.current?.();
+        });
 
         mapRef.current = map;
 
@@ -195,7 +259,15 @@ const s = StyleSheet.create({
   mapWrap: {
     flex: 1,
     overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
+
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#F6F7F5',
   },
   error: {
     position: 'absolute',

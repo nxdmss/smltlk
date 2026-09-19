@@ -1,0 +1,75 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const indexPath = path.join(root, 'dist', 'index.html');
+
+if (!fs.existsSync(indexPath)) {
+  console.error('dist/index.html не найден');
+  process.exit(1);
+}
+
+let html = fs.readFileSync(indexPath, 'utf8');
+
+html = html.replace(
+  /\s*<meta[^>]+name=["']viewport["'][^>]*>\s*/gi,
+  '\n'
+);
+
+html = html
+  .replace(/\s*<meta[^>]+name=["']apple-mobile-web-app-status-bar-style["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']apple-mobile-web-app-capable["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']mobile-web-app-capable["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']theme-color["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<style[^>]+id=["']smltlk-ios-fullscreen["'][^>]*>[\s\S]*?<\/style>\s*/gi, '\n');
+
+const head = `
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#F6F7F5" />
+  <style id="smltlk-ios-fullscreen">
+    html,
+    body,
+    #root {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden;
+      background: #F6F7F5;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      min-height: 100svh;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      min-height: 100dvh;
+    }
+
+    @supports (padding-top: env(safe-area-inset-top)) {
+      html,
+      body,
+      #root {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+      }
+    }
+  </style>
+`;
+
+html = html.replace('</head>', head + '\n</head>');
+fs.writeFileSync(indexPath, html);
+
+console.log('iOS fullscreen safe-area fixed');

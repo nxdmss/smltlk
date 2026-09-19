@@ -1,0 +1,673 @@
+import { useMemo } from 'react';
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import BrandMark from '../components/BrandMark';
+import ProductVisual from '../components/ProductVisual';
+import ScreenScrollView from '../components/ScreenScrollView';
+import { coffeeShops } from '../data/locations';
+import type { CoffeeShop } from '../data/locations';
+import {
+  categories,
+  menu,
+  type MenuCategory,
+  type Product,
+} from '../data/menu';
+import {
+  colors,
+  fonts,
+  layout,
+  radii,
+  spacing,
+  typography,
+} from '../theme';
+import type {
+  ActiveOrder,
+  CartSummary,
+} from '../types';
+import { rubles, twoDigits } from '../utils';
+
+export default function MenuScreen({
+  selectedLocation,
+  activeCategory,
+  onCategoryChange,
+  onLocations,
+  onOpenProduct,
+  onCart,
+  cartSummary,
+  activeOrder,
+  onOpenOrder,
+}: {
+  selectedLocation: CoffeeShop;
+  activeCategory: MenuCategory;
+  onCategoryChange: (id: MenuCategory) => void;
+  onLocations: () => void;
+  onOpenProduct: (product: Product) => void;
+  onCart: () => void;
+  cartSummary: CartSummary;
+  activeOrder: ActiveOrder | null;
+  onOpenOrder: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+
+  const products = useMemo(
+    () =>
+      activeCategory === 'popular'
+        ? menu.filter(
+            (product) => product.popular,
+          )
+        : menu.filter(
+            (product) =>
+              product.category === activeCategory,
+          ),
+    [activeCategory],
+  );
+
+  const seasonal =
+    menu.find(
+      (product) =>
+        product.id === 'matcha-strawberry',
+    ) ?? menu[0];
+
+  const shopNumber = twoDigits(
+    coffeeShops.findIndex(
+      (shop) =>
+        shop.id === selectedLocation.id,
+    ) + 1,
+  );
+
+  const orderReady =
+    activeOrder?.status === 'готов';
+
+  return (
+    <View style={s.screen}>
+      <View
+        style={[
+          s.topBar,
+          { paddingTop: insets.top },
+        ]}
+      >
+          <View style={s.logoSlot}>
+            <BrandMark width={48} />
+          </View>
+
+          <View pointerEvents="box-none" style={s.orderSlot}>
+            {activeOrder ? (
+              <Pressable
+                onPress={onOpenOrder}
+                hitSlop={8}
+                style={s.orderLink}
+              >
+                <Text style={s.orderLabel}>
+                  заказ{' '}
+                  <Text style={s.orderNumber}>
+                    {activeOrder.id}
+                  </Text>
+                </Text>
+
+                <Text
+                  style={[
+                    s.orderStatus,
+                    orderReady &&
+                      s.orderStatusReady,
+                  ]}
+                >
+                  {activeOrder.status}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+
+          <Pressable onPress={onLocations} hitSlop={8} style={s.location}>
+            <View style={s.locationCopy}>
+              <Text style={s.locationLabel}>ST-{shopNumber}</Text>
+            </View>
+          </Pressable>
+        </View>
+
+      <ScreenScrollView
+        screenKey="menu"
+        contentContainerStyle={[
+          s.page,
+          {
+            paddingTop: insets.top + spacing.sm,
+            paddingBottom: 118 + insets.bottom,
+          },
+        ]}
+      >
+        
+
+        <Pressable
+          onPress={() =>
+            onOpenProduct(seasonal)
+          }
+          style={s.hero}
+        >
+          <View style={s.heroCopy}>
+            <Text style={s.heroKicker}>
+              сезонное
+            </Text>
+
+            <Text style={s.heroTitle}>
+              матча{`\n`}клубника
+            </Text>
+
+            <Text
+              numberOfLines={2}
+              style={s.heroDescription}
+            >
+              зелёная матча · молоко · клубника
+            </Text>
+
+            <View style={s.heroPriceBox}>
+              <Text style={s.heroPrice}>
+                {rubles(seasonal.sizes[0].price)}
+              </Text>
+            </View>
+          </View>
+
+          <View style={s.heroVisual}>
+            <ProductVisual
+              product={seasonal}
+              hero
+            />
+          </View>
+        </Pressable>
+
+        <View style={s.sectionHeader}>
+          <Text style={s.sectionTitle}>
+            меню
+          </Text>
+
+          <Text style={s.sectionCount}>
+            {twoDigits(products.length)} позиций
+          </Text>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={s.categories}
+        >
+          {categories.map((category) => {
+            const active =
+              category.id === activeCategory;
+
+            return (
+              <Pressable
+                key={category.id}
+                onPress={() =>
+                  onCategoryChange(category.id)
+                }
+                style={[
+                  s.category,
+                  active &&
+                    s.categoryActive,
+                ]}
+              >
+                <Text
+                  style={[
+                    s.categoryText,
+                    active &&
+                      s.categoryTextActive,
+                  ]}
+                >
+                  {category.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+
+        <View style={s.grid}>
+          {products.map((product) => (
+            <Pressable
+              key={product.id}
+              onPress={() => onOpenProduct(product)}
+              style={s.card}
+            >
+              <ProductVisual product={product} />
+
+              <View pointerEvents="none" style={s.cardCopy}>
+                <Text
+                  numberOfLines={2}
+                  style={s.cardName}
+                >
+                  {product.name}
+                </Text>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      </ScreenScrollView>
+{cartSummary.quantity > 0 ? (
+        <Pressable
+          onPress={onCart}
+          style={[
+            s.cartBar,
+            { bottom: insets.bottom + layout.screenPadding },
+          ]}
+        >
+          <View style={s.cartCount}>
+            <Text style={s.cartCountText}>
+              {cartSummary.quantity}
+            </Text>
+          </View>
+
+          <Text style={s.cartLabel}>
+            корзина
+          </Text>
+
+          <Text style={s.cartTotal}>
+            {rubles(cartSummary.total)}
+          </Text>
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  screen: {
+
+    flex: 1,
+    backgroundColor: colors.bg,
+    overflow: 'hidden',
+
+  },
+
+  page: {
+
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: spacing.sm,
+    paddingBottom: 118,
+
+  },
+
+  topBar: {
+
+    position: 'relative',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: layout.screenPadding,
+    backgroundColor: colors.bg,
+    zIndex: 100,
+
+
+    minHeight: 56,
+    paddingBottom: spacing.xxs,
+    gap: spacing.xxs,
+  },
+
+  logoSlot: {
+
+    zIndex: 5,
+    flexShrink: 0,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+
+
+    width: 54,
+    height: 44,
+  },
+
+  orderSlot: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: 4,
+
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+
+    height: 44,
+    justifyContent: 'center',
+  },
+
+  orderLink: {
+    width: 130,
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.xxs,
+
+    height: 44,
+    paddingVertical: 0,
+    transform: [{ translateY: 6 }],
+  },
+
+  orderLabel: {
+    position: 'absolute',
+    top: 0,
+    color: colors.muted,
+    ...typography.eyebrow,
+
+    fontSize: 8,
+    lineHeight: 10,
+    letterSpacing: 0.4,
+    textAlign: 'center',
+  },
+
+  orderNumber: {
+    color: colors.aqua,
+    textDecorationLine: 'underline',
+  },
+
+  orderStatus: {
+    color: colors.red,
+    fontFamily: fonts.black,
+    textTransform: 'uppercase',
+
+    fontSize: 10,
+    lineHeight: 12,
+    marginTop: 1,
+    letterSpacing: 0.4,
+    textAlign: 'center',
+  },
+
+  orderStatusReady: {
+    color: colors.red,
+  },
+
+  location: {
+
+    marginLeft: 'auto',
+    zIndex: 5,
+    flexShrink: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+
+
+    width: 132,
+    height: 44,
+  },
+
+  locationCopy: {
+    width: '100%',
+    minWidth: 0,
+    alignItems: 'flex-end',
+  },
+
+  locationLabel: {
+    color: colors.red,
+    fontFamily: fonts.black,
+    letterSpacing: 0.4,
+
+    fontSize: 10,
+    lineHeight: 12,
+    marginBottom: 1,
+  },
+
+  locationAddress: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    textAlign: 'right',
+
+    fontSize: 9.5,
+    lineHeight: 11,
+  },
+
+  hero: {
+    height: 234,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: radii.control,
+    marginBottom: spacing.xl,
+  },
+
+  heroCopy: {
+    width: '52%',
+    backgroundColor: colors.red,
+    justifyContent: 'center',
+    padding: spacing.md,
+  },
+
+  heroKicker: {
+    color: colors.white,
+    ...typography.eyebrow,
+    opacity: 0.78,
+  },
+
+  heroTitle: {
+    color: colors.white,
+    fontFamily: fonts.black,
+    fontSize: 31,
+    lineHeight: 30,
+    letterSpacing: -1.5,
+    marginTop: spacing.xs,
+  },
+
+  heroDescription: {
+    color: colors.white,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    lineHeight: 14,
+    opacity: 0.88,
+    marginTop: spacing.sm,
+  },
+
+  heroPriceBox: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.black,
+    borderRadius: radii.sharp,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    marginTop: spacing.sm,
+  },
+
+  heroPrice: {
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    lineHeight: 13,
+  },
+
+  heroVisual: {
+    width: '48%',
+    height: '100%',
+    backgroundColor: colors.paper,
+  },
+
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: spacing.sm,
+  },
+
+  sectionTitle: {
+    color: colors.text,
+    ...typography.titleMedium,
+    fontSize: 32,
+    lineHeight: 34,
+  },
+
+  sectionCount: {
+    color: colors.muted,
+    ...typography.eyebrow,
+    letterSpacing: 0.65,
+  },
+
+  categories: {
+    gap: spacing.xs,
+    paddingRight: spacing.xl,
+    paddingBottom: spacing.md,
+  },
+
+  category: {
+    minHeight: 38,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
+  },
+
+  categoryActive: {
+    backgroundColor: colors.aqua,
+    borderColor: colors.aqua,
+  },
+
+  categoryText: {
+    color: colors.text,
+    fontFamily: fonts.semibold,
+    fontSize: 10,
+    lineHeight: 13,
+  },
+
+  categoryTextActive: {
+    color: colors.black,
+  },
+
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: 14,
+  },
+
+  card: {
+    width: '48.4%',
+    height: 202,
+    position: 'relative',
+    borderRadius: 4,
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    padding: 0,
+  },
+
+  cardCopy: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 52,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 13,
+    justifyContent: 'flex-end',
+    backgroundColor: 'transparent',
+    zIndex: 20,
+    elevation: 20,
+  },
+
+  cardName: {
+    color: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 15,
+    lineHeight: 18,
+    letterSpacing: -0.2,
+    textAlign: 'left',
+  },
+
+  cardDescription: {
+    color: colors.muted,
+    fontFamily: fonts.regular,
+    fontSize: 9.5,
+    lineHeight: 13,
+    marginTop: spacing.xxs,
+  },
+
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.xs,
+    marginTop: 'auto',
+    paddingTop: spacing.xs,
+  },
+
+  cardPrice: {
+    flexShrink: 1,
+    color: colors.muted,
+    fontFamily: fonts.semibold,
+    fontSize: 9,
+    lineHeight: 12,
+  },
+
+  plus: {
+    width: 26,
+    height: 26,
+    flexShrink: 0,
+    backgroundColor: colors.red,
+    borderRadius: radii.sharp,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  plusText: {
+    color: colors.white,
+    fontFamily: fonts.regular,
+    fontSize: 18,
+    lineHeight: 19,
+  },
+
+
+  cartBar: {
+    position: 'absolute',
+    left: layout.screenPadding,
+    right: layout.screenPadding,
+    bottom: 0,
+    minHeight: 60,
+    backgroundColor: colors.black,
+    borderWidth: 1,
+    borderColor: colors.black,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.xs,
+    shadowColor: colors.black,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
+
+  },
+
+  cartCount: {
+    width: 42,
+    height: 42,
+    backgroundColor: colors.red,
+    borderRadius: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  cartCountText: {
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    lineHeight: 15,
+  },
+
+  cartLabel: {
+    flex: 1,
+    color: colors.white,
+    ...typography.bodyStrong,
+    fontSize: 14,
+    marginLeft: spacing.sm,
+  },
+
+  cartTotal: {
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 13,
+    lineHeight: 16,
+  },
+});

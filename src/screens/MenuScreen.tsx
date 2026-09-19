@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import BrandMark from '../components/BrandMark';
 import ProductVisual from '../components/ProductVisual';
@@ -53,6 +54,8 @@ export default function MenuScreen({
   activeOrder: ActiveOrder | null;
   onOpenOrder: () => void;
 }) {
+  const insets = useSafeAreaInsets();
+
   const products = useMemo(
     () =>
       activeCategory === 'popular'
@@ -84,16 +87,17 @@ export default function MenuScreen({
 
   return (
     <View style={s.screen}>
-      <ScreenScrollView
-        screenKey="menu"
-        contentContainerStyle={s.page}
+      <View
+        style={[
+          s.topBar,
+          { paddingTop: insets.top },
+        ]}
       >
-        <View style={s.topBar}>
           <View style={s.logoSlot}>
             <BrandMark width={48} />
           </View>
 
-          <View style={s.orderSlot}>
+          <View pointerEvents="box-none" style={s.orderSlot}>
             {activeOrder ? (
               <Pressable
                 onPress={onOpenOrder}
@@ -120,25 +124,24 @@ export default function MenuScreen({
             ) : null}
           </View>
 
-          <Pressable
-            onPress={onLocations}
-            hitSlop={8}
-            style={s.location}
-          >
+          <Pressable onPress={onLocations} hitSlop={8} style={s.location}>
             <View style={s.locationCopy}>
-              <Text style={s.locationLabel}>
-                {shopNumber}
-              </Text>
-
-              <Text
-                numberOfLines={2}
-                style={s.locationAddress}
-              >
-                {selectedLocation.address}
-              </Text>
+              <Text style={s.locationLabel}>ST-{shopNumber}</Text>
             </View>
           </Pressable>
         </View>
+
+      <ScreenScrollView
+        screenKey="menu"
+        contentContainerStyle={[
+          s.page,
+          {
+            paddingTop: insets.top + spacing.sm,
+            paddingBottom: 118 + insets.bottom,
+          },
+        ]}
+      >
+        
 
         <Pressable
           onPress={() =>
@@ -226,54 +229,30 @@ export default function MenuScreen({
           {products.map((product) => (
             <Pressable
               key={product.id}
-              onPress={() =>
-                onOpenProduct(product)
-              }
+              onPress={() => onOpenProduct(product)}
               style={s.card}
             >
-              <ProductVisual
-                product={product}
-              />
+              <ProductVisual product={product} />
 
-              <View style={s.cardCopy}>
+              <View pointerEvents="none" style={s.cardCopy}>
                 <Text
                   numberOfLines={2}
                   style={s.cardName}
                 >
                   {product.name}
                 </Text>
-
-                <Text
-                  numberOfLines={2}
-                  style={s.cardDescription}
-                >
-                  {product.description}
-                </Text>
-
-                <View style={s.cardFooter}>
-                  <Text style={s.cardPrice}>
-                    от{' '}
-                    {rubles(
-                      product.sizes[0].price,
-                    )}
-                  </Text>
-
-                  <View style={s.plus}>
-                    <Text style={s.plusText}>
-                      +
-                    </Text>
-                  </View>
-                </View>
               </View>
             </Pressable>
           ))}
         </View>
       </ScreenScrollView>
-
-      {cartSummary.quantity > 0 ? (
+{cartSummary.quantity > 0 ? (
         <Pressable
           onPress={onCart}
-          style={s.cartBar}
+          style={[
+            s.cartBar,
+            { bottom: insets.bottom + layout.screenPadding },
+          ]}
         >
           <View style={s.cartCount}>
             <Text style={s.cartCountText}>
@@ -296,47 +275,94 @@ export default function MenuScreen({
 
 const s = StyleSheet.create({
   screen: {
+
     flex: 1,
+    backgroundColor: colors.bg,
+    overflow: 'hidden',
+
   },
 
   page: {
+
     paddingHorizontal: layout.screenPadding,
     paddingTop: spacing.sm,
     paddingBottom: 118,
+
   },
 
   topBar: {
-    minHeight: 64,
+
+    position: 'relative',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: spacing.xs,
-    marginBottom: spacing.sm,
+    justifyContent: 'space-between',
+    paddingHorizontal: layout.screenPadding,
+    backgroundColor: colors.bg,
+    zIndex: 100,
+
+
+    minHeight: 56,
+    paddingBottom: spacing.xxs,
+    gap: spacing.xxs,
   },
 
   logoSlot: {
-    width: 62,
+
+    zIndex: 5,
     flexShrink: 0,
     alignItems: 'flex-start',
+    justifyContent: 'center',
+
+
+    width: 54,
+    height: 44,
   },
 
   orderSlot: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    zIndex: 4,
+
     flex: 1,
     minWidth: 0,
     alignItems: 'center',
-    justifyContent: 'center',
+
+    height: 44,
+
+    justifyContent: 'flex-end',
+    paddingBottom: 0,
   },
 
   orderLink: {
+    width: 130,
+    position: 'relative',
     alignItems: 'center',
-    justifyContent: 'center',
+
     paddingHorizontal: spacing.xxs,
-    paddingVertical: spacing.xxs,
+
+    height: 44,
+    paddingVertical: 0,
+
+    justifyContent: 'flex-end',
+    paddingBottom: 0,
+    transform: [{ translateY: 16 }],
   },
 
   orderLabel: {
+    position: 'absolute',
+    top: 0,
     color: colors.muted,
     ...typography.eyebrow,
-    letterSpacing: 0.55,
+
+    fontSize: 8,
+    lineHeight: 10,
+    letterSpacing: 0.4,
+    textAlign: 'center',
   },
 
   orderNumber: {
@@ -346,24 +372,31 @@ const s = StyleSheet.create({
 
   orderStatus: {
     color: colors.red,
-    fontFamily: fonts.bold,
-    fontSize: 11,
-    lineHeight: 14,
-    letterSpacing: 0.55,
+    fontFamily: fonts.black,
     textTransform: 'uppercase',
-    marginTop: 2,
+
+    fontSize: 9.5,
+    lineHeight: 10,
+    marginTop: 0,
+    letterSpacing: 0.25,
+    textAlign: 'center',
   },
 
   orderStatusReady: {
-    color: colors.aqua,
+    color: colors.red,
   },
 
   location: {
-    width: 150,
+
+    marginLeft: 'auto',
+    zIndex: 5,
     flexShrink: 0,
-    minHeight: 42,
     alignItems: 'flex-end',
     justifyContent: 'center',
+
+
+    width: 132,
+    height: 44,
   },
 
   locationCopy: {
@@ -374,20 +407,21 @@ const s = StyleSheet.create({
 
   locationLabel: {
     color: colors.red,
-    fontFamily: fonts.bold,
-    fontSize: 11,
-    lineHeight: 13,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 3,
+    fontFamily: fonts.black,
+    letterSpacing: 0.4,
+
+    fontSize: 10,
+    lineHeight: 12,
+    marginBottom: 1,
   },
 
   locationAddress: {
     color: colors.text,
     fontFamily: fonts.semibold,
-    fontSize: 10.5,
-    lineHeight: 13,
     textAlign: 'right',
+
+    fontSize: 9.5,
+    lineHeight: 11,
   },
 
   hero: {
@@ -490,8 +524,8 @@ const s = StyleSheet.create({
   },
 
   categoryActive: {
-    backgroundColor: colors.white,
-    borderColor: colors.white,
+    backgroundColor: colors.aqua,
+    borderColor: colors.aqua,
   },
 
   categoryText: {
@@ -509,30 +543,42 @@ const s = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    rowGap: spacing.sm,
+    rowGap: 14,
   },
 
   card: {
-    width: '48.5%',
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panel,
-    borderRadius: radii.control,
+    width: '48.4%',
+    height: 202,
+    position: 'relative',
+    borderRadius: 4,
     overflow: 'hidden',
+    backgroundColor: 'transparent',
+    borderWidth: 0,
+    padding: 0,
   },
 
   cardCopy: {
-    minHeight: 122,
-    padding: spacing.sm,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 52,
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 13,
+    justifyContent: 'flex-end',
+    backgroundColor: 'transparent',
+    zIndex: 20,
+    elevation: 20,
   },
 
   cardName: {
-    minHeight: 38,
-    color: colors.text,
+    color: colors.black,
     fontFamily: fonts.bold,
     fontSize: 15,
     lineHeight: 18,
     letterSpacing: -0.2,
+    textAlign: 'left',
   },
 
   cardDescription: {
@@ -561,8 +607,8 @@ const s = StyleSheet.create({
   },
 
   plus: {
-    width: 30,
-    height: 30,
+    width: 26,
+    height: 26,
     flexShrink: 0,
     backgroundColor: colors.red,
     borderRadius: radii.sharp,
@@ -573,30 +619,37 @@ const s = StyleSheet.create({
   plusText: {
     color: colors.white,
     fontFamily: fonts.regular,
-    fontSize: 20,
-    lineHeight: 21,
+    fontSize: 18,
+    lineHeight: 19,
   },
+
 
   cartBar: {
     position: 'absolute',
     left: layout.screenPadding,
     right: layout.screenPadding,
-    bottom: layout.screenPadding,
+    bottom: 0,
     minHeight: 60,
-    backgroundColor: colors.panelStrong,
+    backgroundColor: colors.black,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radii.control,
+    borderColor: colors.black,
+    borderRadius: 4,
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.xs,
+    shadowColor: colors.black,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 8,
+
   },
 
   cartCount: {
     width: 42,
     height: 42,
     backgroundColor: colors.red,
-    borderRadius: radii.sharp,
+    borderRadius: 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -610,16 +663,16 @@ const s = StyleSheet.create({
 
   cartLabel: {
     flex: 1,
-    color: colors.text,
+    color: colors.white,
     ...typography.bodyStrong,
     fontSize: 14,
     marginLeft: spacing.sm,
   },
 
   cartTotal: {
-    color: colors.text,
+    color: colors.white,
     fontFamily: fonts.bold,
-    fontSize: 12,
-    lineHeight: 15,
+    fontSize: 13,
+    lineHeight: 16,
   },
 });

@@ -6,15 +6,16 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AppHeader from './AppHeader';
 import type { Product } from '../data/menu';
 import { productImages } from '../data/productImages';
 import {
   colors,
-  fonts,
   layout,
-  productSurfaces,
   radii,
   spacing,
   typography,
@@ -42,431 +43,471 @@ export default function ProductSheet({
   onClose: () => void;
   onAdd: () => void;
 }) {
-  const total = product
-    ? product.sizes[selectedSize].price +
-      (altMilk ? 90 : 0) +
-      (syrup ? 30 : 0)
-    : 0;
+  const insets = useSafeAreaInsets();
+  const { width, height } = useWindowDimensions();
+
+  const compact = height < 760 || width < 360;
+
+  if (!product) {
+    return null;
+  }
+
+  const total =
+    product.sizes[selectedSize].price +
+    (altMilk ? 90 : 0) +
+    (syrup ? 30 : 0);
+
+  const productColor =
+    product.category === 'classic' ||
+    product.category === 'not-coffee'
+      ? colors.aqua
+      : colors.red;
 
   return (
     <Modal
-      transparent
-      visible={Boolean(product)}
+      visible
       animationType="slide"
+      presentationStyle="fullScreen"
       onRequestClose={onClose}
     >
-      <View style={s.backdrop}>
-        <Pressable
-          accessibilityLabel="Закрыть"
-          onPress={onClose}
-          style={StyleSheet.absoluteFill}
-        />
+      <View
+        style={[
+          s.page,
+          {
+            paddingTop: insets.top,
+          },
+        ]}
+      >
+        <View style={s.headerWrap}>
+          <AppHeader
+            title="напиток"
+            onBack={onClose}
+            compact
+          />
+        </View>
 
-        {product ? (
-          <View style={s.sheet}>
-            <View style={s.handle} />
+        <ScrollView
+          style={s.scroll}
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="never"
+          contentContainerStyle={[
+            s.scrollContent,
+            compact && s.scrollContentCompact,
+          ]}
+        >
+          <View
+            style={[
+              s.visual,
+              compact && s.visualCompact,
+              {
+                backgroundColor: productColor,
+              },
+            ]}
+          >
+            <Image
+              source={productImages[product.id]}
+              resizeMode="contain"
+              style={[
+                s.visualImage,
+                compact && s.visualImageCompact,
+              ]}
+            />
+          </View>
 
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={s.scrollContent}
-            >
-              <View style={s.hero}>
-                <View
+          <Text
+            style={[
+              s.title,
+              compact && s.titleCompact,
+            ]}
+          >
+            {product.name}
+          </Text>
+
+          <View style={s.rule} />
+
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>
+              РАЗМЕР
+            </Text>
+
+            <View style={s.sizeGrid}>
+              {product.sizes.map((size, index) => {
+                const active =
+                  index === selectedSize;
+
+                return (
+                  <Pressable
+                    key={size.label}
+                    onPress={() =>
+                      onSizeChange(index)
+                    }
+                    style={[
+                      s.control,
+                      active && s.controlActive,
+                    ]}
+                  >
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        s.controlTitle,
+                        active &&
+                          s.controlTitleActive,
+                      ]}
+                    >
+                      {size.label}
+                    </Text>
+
+                    <Text
+                      style={[
+                        s.controlMeta,
+                        active &&
+                          s.controlMetaActive,
+                      ]}
+                    >
+                      {rubles(size.price)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>
+              ДОБАВИТЬ
+            </Text>
+
+            <View style={s.extraGrid}>
+              <Pressable
+                onPress={onAltMilkChange}
+                style={[
+                  s.extra,
+                  altMilk && s.extraActive,
+                ]}
+              >
+                <Text
+                  numberOfLines={1}
                   style={[
-                    s.visual,
-                    {
-                      backgroundColor:
-                        productSurfaces[product.category],
-                    },
+                    s.extraTitle,
+                    altMilk &&
+                      s.extraTitleActive,
                   ]}
                 >
-                  <Image
-                    source={productImages[product.id]}
-                    resizeMode="contain"
-                    style={s.visualImage}
-                  />
-                </View>
+                  альт. молоко
+                </Text>
 
-                <View style={s.heroCopy}>
-                  <View style={s.heroTop}>
-                    <Text style={s.eyebrow}>напиток</Text>
+                <Text
+                  numberOfLines={2}
+                  style={[
+                    s.extraHint,
+                    altMilk &&
+                      s.extraHintActive,
+                  ]}
+                >
+                  овсяное / кокосовое
+                </Text>
 
-                    <Pressable
-                      accessibilityLabel="Закрыть"
-                      onPress={onClose}
-                      style={s.close}
-                    >
-                      <Text style={s.closeText}>×</Text>
-                    </Pressable>
-                  </View>
+                <Text
+                  style={[
+                    s.extraPrice,
+                    altMilk &&
+                      s.extraPriceActive,
+                  ]}
+                >
+                  {altMilk
+                    ? '✓ выбрано'
+                    : '+90 ₽'}
+                </Text>
+              </Pressable>
 
-                  <Text style={s.title}>{product.name}</Text>
+              <Pressable
+                onPress={onSyrupChange}
+                style={[
+                  s.extra,
+                  syrup && s.extraActive,
+                ]}
+              >
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    s.extraTitle,
+                    syrup &&
+                      s.extraTitleActive,
+                  ]}
+                >
+                  сироп
+                </Text>
 
-                  <Text
-                    numberOfLines={3}
-                    style={s.description}
-                  >
-                    {product.description}
-                  </Text>
-                </View>
-              </View>
+                <Text
+                  numberOfLines={2}
+                  style={[
+                    s.extraHint,
+                    syrup &&
+                      s.extraHintActive,
+                  ]}
+                >
+                  ваниль / карамель
+                </Text>
 
-              <View style={s.section}>
-                <Text style={s.sectionLabel}>размер</Text>
-
-                <View style={s.sizeList}>
-                  {product.sizes.map((size, index) => {
-                    const active = index === selectedSize;
-
-                    return (
-                      <Pressable
-                        key={size.label}
-                        onPress={() => onSizeChange(index)}
-                        style={[
-                          s.sizeCard,
-                          active && s.sizeCardActive,
-                        ]}
-                      >
-                        <Text
-                          style={[
-                            s.sizeName,
-                            active && s.sizeNameActive,
-                          ]}
-                        >
-                          {size.label}
-                        </Text>
-
-                        <Text
-                          style={[
-                            s.sizePrice,
-                            active && s.sizePriceActive,
-                          ]}
-                        >
-                          {rubles(size.price)}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </View>
-
-              <View style={s.section}>
-                <Text style={s.sectionLabel}>добавки</Text>
-
-                <View style={s.extras}>
-                  <ExtraRow
-                    title="альтернативное молоко"
-                    hint="овсяное / кокосовое"
-                    price="+90 ₽"
-                    active={altMilk}
-                    onPress={onAltMilkChange}
-                  />
-
-                  <ExtraRow
-                    title="сироп"
-                    hint="ваниль / карамель"
-                    price="+30 ₽"
-                    active={syrup}
-                    onPress={onSyrupChange}
-                  />
-                </View>
-              </View>
-            </ScrollView>
-
-            <Pressable onPress={onAdd} style={s.cta}>
-              <Text style={s.ctaText}>в корзину</Text>
-              <Text style={s.ctaText}>{rubles(total)}</Text>
-            </Pressable>
+                <Text
+                  style={[
+                    s.extraPrice,
+                    syrup &&
+                      s.extraPriceActive,
+                  ]}
+                >
+                  {syrup
+                    ? '✓ выбрано'
+                    : '+30 ₽'}
+                </Text>
+              </Pressable>
+            </View>
           </View>
-        ) : null}
+
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>
+              СОСТАВ
+            </Text>
+
+            <View style={s.composition}>
+              <Text style={s.description}>
+                {product.description}
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        <View
+          style={[
+            s.bottomBar,
+            {
+              paddingBottom:
+                Math.max(insets.bottom, 10),
+            },
+          ]}
+        >
+          <Pressable
+            onPress={onAdd}
+            style={s.cta}
+          >
+            <Text style={s.ctaText}>
+              в корзину
+            </Text>
+
+            <Text style={s.ctaText}>
+              {rubles(total)}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </Modal>
   );
 }
 
-function ExtraRow({
-  title,
-  hint,
-  price,
-  active,
-  onPress,
-}: {
-  title: string;
-  hint: string;
-  price: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={[s.extraRow, active && s.extraRowActive]}
-    >
-      <View style={s.extraCopy}>
-        <Text
-          style={[
-            s.extraTitle,
-            active && s.extraTitleActive,
-          ]}
-        >
-          {title}
-        </Text>
-
-        <Text
-          style={[
-            s.extraHint,
-            active && s.extraHintActive,
-          ]}
-        >
-          {hint}
-        </Text>
-      </View>
-
-      <Text
-        style={[
-          s.extraPrice,
-          active && s.extraPriceActive,
-        ]}
-      >
-        {active ? '✓' : price}
-      </Text>
-    </Pressable>
-  );
-}
-
 const s = StyleSheet.create({
-  backdrop: {
+  page: {
     flex: 1,
-    backgroundColor: colors.overlay,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
+    minHeight: 0,
+    backgroundColor: colors.bg,
   },
 
-  sheet: {
-    width: '100%',
-    maxWidth: layout.maxWidth,
-    maxHeight: '82%',
-    backgroundColor: colors.panel,
-    borderTopLeftRadius: radii.sheet,
-    borderTopRightRadius: radii.sheet,
-    borderWidth: 1,
-    borderColor: colors.line,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.sm,
+  headerWrap: {
+    paddingHorizontal: layout.screenPadding,
   },
 
-  handle: {
-    width: 44,
-    height: 3,
-    backgroundColor: colors.line,
-    alignSelf: 'center',
-    marginBottom: spacing.sm,
+  scroll: {
+    flex: 1,
+    minHeight: 0,
   },
 
   scrollContent: {
-    paddingBottom: spacing.xs,
+    paddingHorizontal: layout.screenPadding,
+    paddingBottom: spacing.lg,
   },
 
-  hero: {
-    flexDirection: 'row',
-    gap: spacing.sm,
+  scrollContentCompact: {
     paddingBottom: spacing.md,
-    marginBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
   },
 
   visual: {
-    width: 104,
-    height: 126,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    flexShrink: 0,
-  },
-
-  visualImage: {
-    width: 98,
-    height: 116,
-    transform: [{ translateY: 4 }],
-  },
-
-  heroCopy: {
-    flex: 1,
-    minWidth: 0,
-    minHeight: 126,
-  },
-
-  heroTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    gap: spacing.xs,
-  },
-
-  eyebrow: {
-    color: colors.aqua,
-    ...typography.eyebrow,
-    marginTop: 3,
-  },
-
-  close: {
-    width: 32,
-    height: 32,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panelSoft,
+    height: 244,
     borderRadius: radii.control,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: spacing.md,
   },
 
-  closeText: {
-    color: colors.text,
-    fontFamily: fonts.regular,
-    fontSize: 22,
-    lineHeight: 22,
+  visualCompact: {
+    height: 168,
+    marginBottom: spacing.sm,
+  },
+
+  visualImage: {
+    width: '80%',
+    height: '94%',
+  },
+
+  visualImageCompact: {
+    width: '72%',
+    height: '92%',
   },
 
   title: {
     color: colors.text,
     ...typography.titleMedium,
-    fontSize: 24,
-    lineHeight: 26,
-    marginTop: spacing.xxs,
+    textTransform: 'lowercase',
+  },
+
+  titleCompact: {
+    fontSize: 26,
+    lineHeight: 28,
+    letterSpacing: -0.8,
+  },
+
+  rule: {
+    height: 1,
+    backgroundColor: colors.line,
+    marginTop: spacing.md,
+    marginBottom: spacing.md,
+  },
+
+  section: {
+    marginBottom: spacing.lg,
+  },
+
+  sectionLabel: {
+    color: colors.text,
+    ...typography.eyebrow,
+    marginBottom: spacing.xs,
+  },
+
+  sizeGrid: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+
+  control: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 56,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    justifyContent: 'center',
+  },
+
+  controlActive: {
+    backgroundColor: colors.aqua,
+    borderColor: colors.aqua,
+  },
+
+  controlTitle: {
+    color: colors.text,
+    ...typography.bodyStrong,
+  },
+
+  controlTitleActive: {
+    color: colors.black,
+  },
+
+  controlMeta: {
+    color: colors.muted,
+    ...typography.caption,
+    marginTop: 2,
+  },
+
+  controlMetaActive: {
+    color: colors.black,
+  },
+
+  extraGrid: {
+    flexDirection: 'row',
+    gap: spacing.xs,
+  },
+
+  extra: {
+    flex: 1,
+    minWidth: 0,
+    minHeight: 92,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+  },
+
+  extraActive: {
+    backgroundColor: colors.aqua,
+    borderColor: colors.aqua,
+  },
+
+  extraTitle: {
+    color: colors.text,
+    ...typography.bodyStrong,
+  },
+
+  extraTitleActive: {
+    color: colors.black,
+  },
+
+  extraHint: {
+    color: colors.muted,
+    ...typography.caption,
+    marginTop: 3,
+  },
+
+  extraHintActive: {
+    color: colors.black,
+    opacity: 0.72,
+  },
+
+  extraPrice: {
+    color: colors.text,
+    ...typography.caption,
+    fontFamily: typography.bodyStrong.fontFamily,
+    marginTop: 'auto',
+    paddingTop: spacing.xs,
+  },
+
+  extraPriceActive: {
+    color: colors.black,
+  },
+
+  composition: {
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.panel,
+    borderRadius: radii.control,
+    padding: spacing.sm,
   },
 
   description: {
     color: colors.muted,
     ...typography.body,
-    fontSize: 11,
-    lineHeight: 15,
-    marginTop: spacing.xs,
   },
 
-  section: {
-    marginBottom: spacing.md,
-  },
-
-  sectionLabel: {
-    color: colors.muted,
-    ...typography.eyebrow,
-    marginBottom: spacing.xs,
-  },
-
-  sizeList: {
-    flexDirection: 'row',
-    gap: spacing.xs,
-  },
-
-  sizeCard: {
-    flex: 1,
-    minHeight: 58,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panelSoft,
-    borderRadius: radii.control,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    justifyContent: 'space-between',
-  },
-
-  sizeCardActive: {
-    backgroundColor: colors.paper,
-    borderColor: colors.paper,
-  },
-
-  sizeName: {
-    color: colors.text,
-    fontFamily: fonts.semibold,
-    fontSize: 12,
-    lineHeight: 15,
-  },
-
-  sizeNameActive: {
-    color: colors.black,
-  },
-
-  sizePrice: {
-    color: colors.muted,
-    fontFamily: fonts.medium,
-    fontSize: 10,
-    lineHeight: 13,
-  },
-
-  sizePriceActive: {
-    color: colors.black,
-  },
-
-  extras: {
-    gap: spacing.xs,
-  },
-
-  extraRow: {
-    minHeight: 58,
-    borderWidth: 1,
-    borderColor: colors.line,
-    backgroundColor: colors.panelSoft,
-    borderRadius: radii.control,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-  },
-
-  extraRowActive: {
-    borderColor: colors.aqua,
-  },
-
-  extraCopy: {
-    flex: 1,
-    minWidth: 0,
-  },
-
-  extraTitle: {
-    color: colors.text,
-    fontFamily: fonts.semibold,
-    fontSize: 12,
-    lineHeight: 15,
-  },
-
-  extraTitleActive: {
-    color: colors.aqua,
-  },
-
-  extraHint: {
-    color: colors.muted,
-    fontFamily: fonts.regular,
-    fontSize: 9,
-    lineHeight: 12,
-    marginTop: 2,
-  },
-
-  extraHintActive: {
-    color: colors.muted,
-  },
-
-  extraPrice: {
-    color: colors.text,
-    fontFamily: fonts.bold,
-    fontSize: 10,
-    lineHeight: 13,
-  },
-
-  extraPriceActive: {
-    color: colors.aqua,
+  bottomBar: {
+    flexShrink: 0,
+    borderTopWidth: 1,
+    borderTopColor: colors.line,
+    backgroundColor: colors.white,
+    paddingHorizontal: layout.screenPadding,
+    paddingTop: spacing.sm,
   },
 
   cta: {
     minHeight: layout.buttonHeight,
-    backgroundColor: colors.red,
+    backgroundColor: colors.black,
     borderRadius: radii.control,
+    paddingHorizontal: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: spacing.md,
   },
 
   ctaText: {

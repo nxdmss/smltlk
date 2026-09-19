@@ -7,6 +7,9 @@ import { colors, fonts } from '../theme';
 
 const MAP_KEY = process.env.EXPO_PUBLIC_2GIS_KEY;
 
+const DEFAULT_MAP_LONGITUDE_OFFSET = 0.0025;
+const DEFAULT_MAP_ZOOM = 14.0;
+
 function buildHtml(shops: CoffeeShop[]) {
   const points = shops.map((shop, index) => ({
     id: shop.id,
@@ -18,19 +21,12 @@ function buildHtml(shops: CoffeeShop[]) {
   const center = {
     longitude:
       shops.reduce((sum, shop) => sum + shop.coordinate.longitude, 0) /
-      shops.length,
+      shops.length + DEFAULT_MAP_LONGITUDE_OFFSET,
     latitude:
       shops.reduce((sum, shop) => sum + shop.coordinate.latitude, 0) /
       shops.length,
   };
 
-  const styleOption = MAP_STYLE_ID
-    ? `style: ${JSON.stringify(MAP_STYLE_ID)},`
-    : '';
-
-  const fallbackFilter = MAP_STYLE_ID
-    ? ''
-    : '#map canvas{filter:brightness(.28) saturate(.38) contrast(1.12) hue-rotate(2deg)}';
 
   return `<!doctype html>
 <html>
@@ -60,7 +56,7 @@ const points = ${JSON.stringify(points)};
 const map = new mapgl.Map('map', {
   key: ${JSON.stringify(MAP_KEY || '')},
   center: [${center.longitude}, ${center.latitude}],
-  styleZoom: 14.4,
+  styleZoom: ${DEFAULT_MAP_ZOOM},
   zoomControl: false,
   trafficControl: false,
   floorControl: false,
@@ -81,6 +77,10 @@ map.setControlsLayoutPadding({
   right:8,
   bottom:8,
   left:8
+});
+
+map.on('click', () => {
+  window.ReactNativeWebView.postMessage('__map_click__');
 });
 
 const markers = {};
@@ -130,10 +130,12 @@ export default function CoffeeMap({
   shops,
   selectedId,
   onSelect,
+  onMapPress,
 }: {
   shops: CoffeeShop[];
   selectedId: string;
   onSelect: (shop: CoffeeShop) => void;
+  onMapPress?: () => void;
 }) {
   const webRef = useRef<any>(null);
   const html = useMemo(() => buildHtml(shops), [shops]);
@@ -165,7 +167,14 @@ export default function CoffeeMap({
         domStorageEnabled
         onLoadEnd={syncSelected}
         onMessage={(event: any) => {
-          const shop = shops.find((item) => item.id === event.nativeEvent.data);
+          const message = event.nativeEvent.data;
+
+          if (message === '__map_click__') {
+            onMapPress?.();
+            return;
+          }
+
+          const shop = shops.find((item) => item.id === message);
           if (shop) onSelect(shop);
         }}
         style={s.webview}

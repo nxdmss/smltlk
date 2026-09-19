@@ -36,4 +36,4 @@ npm run typecheck
 
 
 
-npx expo start -c
+npx expo start -cц

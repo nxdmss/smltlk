@@ -1,0 +1,597 @@
+import {
+  Image,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import type { Product } from '../data/menu';
+import { productImages } from '../data/productImages';
+import {
+  colors,
+  fonts,
+  spacing,
+} from '../theme';
+import { rubles } from '../utils';
+
+export default function ProductSheet({
+  product,
+  selectedSize,
+  altMilk,
+  syrup,
+  onSizeChange,
+  onAltMilkChange,
+  onSyrupChange,
+  onClose,
+  onAdd,
+}: {
+  product: Product | null;
+  selectedSize: number;
+  altMilk: boolean;
+  syrup: boolean;
+  onSizeChange: (index: number) => void;
+  onAltMilkChange: () => void;
+  onSyrupChange: () => void;
+  onClose: () => void;
+  onAdd: () => void;
+}) {
+  const insets = useSafeAreaInsets();
+  const { width: viewportWidth, height: viewportHeight } =
+    useWindowDimensions();
+
+  const compactProductLayout =
+    viewportHeight < 760 || viewportWidth < 360;
+
+  const total = product
+    ? product.sizes[selectedSize].price +
+      (altMilk ? 90 : 0) +
+      (syrup ? 30 : 0)
+    : 0;
+
+  if (!product) {
+    return null;
+  }
+
+  const pageColor =
+    product.category === 'classic' ||
+    product.category === 'not-coffee'
+      ? colors.aqua
+      : colors.red;
+
+  return (
+    <Modal
+      visible
+      animationType="slide"
+      presentationStyle="fullScreen"
+      onRequestClose={onClose}
+    >
+      <View
+        style={[
+          s.page,
+          {
+            backgroundColor: pageColor,
+            paddingTop: insets.top,
+          },
+        ]}
+      >
+        <View style={s.topBar}>
+          <Pressable
+            accessibilityLabel="Закрыть"
+            onPress={onClose}
+            hitSlop={10}
+            style={s.close}
+          >
+            <Text style={s.closeText}>×</Text>
+          </Pressable>
+
+          <Text style={s.topLabel}>SMALL TALK</Text>
+        </View>
+
+        <ScrollView
+          style={s.scroll}
+          showsVerticalScrollIndicator={false}
+          contentInsetAdjustmentBehavior="never"
+          contentContainerStyle={[
+            s.scrollContent,
+            compactProductLayout &&
+              s.scrollContentCompact,
+            { paddingBottom: compactProductLayout ? 16 : 24 },
+          ]}
+        >
+          <View
+            style={[
+              s.visualWrap,
+              compactProductLayout &&
+                s.visualWrapCompact,
+            ]}
+          >
+            <Image
+              source={productImages[product.id]}
+              resizeMode="contain"
+              style={s.visualImage}
+            />
+          </View>
+
+          <Text
+            style={[
+              s.title,
+              compactProductLayout &&
+                s.titleCompact,
+            ]}
+          >
+            {product.name}
+          </Text>
+
+          <View
+            style={[
+              s.rule,
+              compactProductLayout &&
+                s.ruleCompact,
+            ]}
+          />
+
+          <View
+            style={[
+              s.infoBlock,
+              compactProductLayout &&
+                s.infoBlockCompact,
+            ]}
+          >
+            <Text style={s.sectionLabel}>
+              СОСТАВ
+            </Text>
+
+            <Text style={s.description}>
+              {product.description}
+            </Text>
+          </View>
+
+          <View
+            style={[
+              s.infoBlock,
+              compactProductLayout &&
+                s.infoBlockCompact,
+            ]}
+          >
+            <Text style={s.sectionLabel}>
+              РАЗМЕР
+            </Text>
+
+            <View style={s.sizeList}>
+              {product.sizes.map((size, index) => {
+                const active =
+                  index === selectedSize;
+
+                return (
+                  <Pressable
+                    key={size.label}
+                    onPress={() =>
+                      onSizeChange(index)
+                    }
+                    style={[
+                      s.option,
+                      active && s.optionActive,
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        s.optionMain,
+                        active &&
+                          s.optionMainActive,
+                      ]}
+                    >
+                      {size.label}
+                    </Text>
+
+                    <Text
+                      style={[
+                        s.optionPrice,
+                        active &&
+                          s.optionPriceActive,
+                      ]}
+                    >
+                      {rubles(size.price)}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View
+            style={[
+              s.infoBlock,
+              compactProductLayout &&
+                s.infoBlockCompact,
+            ]}
+          >
+            <Text style={s.sectionLabel}>
+              ДОБАВИТЬ
+            </Text>
+
+            <View style={s.extraGrid}>
+              <Pressable
+                onPress={onAltMilkChange}
+                style={[
+                  s.extraButton,
+                  altMilk && s.extraButtonActive,
+                  compactProductLayout &&
+                    s.extraButtonCompact,
+                ]}
+              >
+                <Text
+                  style={[
+                    s.extraButtonTitle,
+                    altMilk &&
+                      s.extraButtonTitleActive,
+                  ]}
+                >
+                  альт. молоко
+                </Text>
+
+                <Text
+                  style={[
+                    s.extraButtonHint,
+                    altMilk &&
+                      s.extraButtonHintActive,
+                  ]}
+                >
+                  овсяное / кокосовое
+                </Text>
+
+                <Text
+                  style={[
+                    s.extraButtonPrice,
+                    altMilk &&
+                      s.extraButtonPriceActive,
+                  ]}
+                >
+                  {altMilk ? '✓ выбрано' : '+90 ₽'}
+                </Text>
+              </Pressable>
+
+              <Pressable
+                onPress={onSyrupChange}
+                style={[
+                  s.extraButton,
+                  syrup && s.extraButtonActive,
+                  compactProductLayout &&
+                    s.extraButtonCompact,
+                ]}
+              >
+                <Text
+                  style={[
+                    s.extraButtonTitle,
+                    syrup &&
+                      s.extraButtonTitleActive,
+                  ]}
+                >
+                  сироп
+                </Text>
+
+                <Text
+                  style={[
+                    s.extraButtonHint,
+                    syrup &&
+                      s.extraButtonHintActive,
+                  ]}
+                >
+                  ваниль / карамель
+                </Text>
+
+                <Text
+                  style={[
+                    s.extraButtonPrice,
+                    syrup &&
+                      s.extraButtonPriceActive,
+                  ]}
+                >
+                  {syrup ? '✓ выбрано' : '+30 ₽'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+
+        <View
+          style={[
+            s.bottomBar,
+            {
+              paddingBottom:
+                Math.max(insets.bottom, 10),
+              backgroundColor: pageColor,
+            },
+          ]}
+        >
+          <Pressable
+            onPress={onAdd}
+            style={s.cta}
+          >
+            <Text style={s.ctaText}>
+              в корзину
+            </Text>
+            <Text style={s.ctaText}>
+              {rubles(total)}
+            </Text>
+          </Pressable>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+const s = StyleSheet.create({
+  page: {
+    flex: 1,
+    minHeight: 0,
+    overflow: 'hidden',
+  },
+
+  topBar: {
+    minHeight: 56,
+    paddingHorizontal: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  topLabel: {
+    color: colors.white,
+    backgroundColor: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    lineHeight: 13,
+    letterSpacing: 1.2,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+  },
+
+  close: {
+    width: 40,
+    height: 40,
+    borderWidth: 1.5,
+    borderColor: colors.black,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  closeText: {
+    color: colors.black,
+    fontFamily: fonts.regular,
+    fontSize: 28,
+    lineHeight: 29,
+    transform: [{ translateY: -1 }],
+  },
+
+  scrollContent: {
+    paddingHorizontal: 18,
+    paddingTop: 4,
+  },
+
+  visualWrap: {
+    height: 320,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 4,
+    marginBottom: 6,
+  },
+
+  visualImage: {
+    width: '84%',
+    height: '96%',
+  },
+
+  title: {
+    color: colors.black,
+    fontFamily: fonts.black,
+    fontSize: 36,
+    lineHeight: 38,
+    letterSpacing: -1.3,
+    textTransform: 'lowercase',
+    marginTop: 4,
+    maxWidth: '92%',
+  },
+
+  rule: {
+    height: 2,
+    backgroundColor: colors.black,
+    marginTop: 16,
+    marginBottom: 22,
+    opacity: 0.95,
+  },
+
+  infoBlock: {
+    marginBottom: 24,
+  },
+
+  sectionLabel: {
+    alignSelf: 'flex-start',
+    color: colors.white,
+    backgroundColor: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    lineHeight: 13,
+    letterSpacing: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 10,
+  },
+
+  description: {
+    alignSelf: 'stretch',
+    color: colors.black,
+    backgroundColor: colors.white,
+    fontFamily: fonts.regular,
+    fontSize: 15,
+    lineHeight: 21,
+    letterSpacing: -0.1,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    borderWidth: 1.5,
+    borderColor: colors.black,
+  },
+
+  sizeList: {
+    gap: 8,
+  },
+
+  option: {
+    minHeight: 58,
+    borderWidth: 1.5,
+    borderColor: colors.black,
+    backgroundColor: colors.white,
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  optionActive: {
+    backgroundColor: colors.black,
+    borderColor: colors.black,
+  },
+
+  optionMain: {
+    color: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    lineHeight: 17,
+  },
+
+  optionMainActive: {
+    color: colors.white,
+  },
+
+  optionPrice: {
+    color: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    lineHeight: 15,
+  },
+
+  optionPriceActive: {
+    color: colors.white,
+  },
+
+  extraGrid: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+
+  extraButton: {
+    flex: 1,
+    minHeight: 104,
+    borderWidth: 1.5,
+    borderColor: colors.black,
+    paddingHorizontal: 11,
+    paddingVertical: 10,
+    justifyContent: 'space-between',
+    backgroundColor: colors.white,
+  },
+
+  extraButtonActive: {
+    backgroundColor: colors.black,
+    borderColor: colors.black,
+  },
+
+  extraButtonTitle: {
+    color: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    lineHeight: 16,
+    letterSpacing: -0.15,
+  },
+
+  extraButtonTitleActive: {
+    color: colors.white,
+  },
+
+  extraButtonHint: {
+    color: colors.black,
+    fontFamily: fonts.regular,
+    fontSize: 10,
+    lineHeight: 13,
+    opacity: 0.72,
+    marginTop: 4,
+  },
+
+  extraButtonHintActive: {
+    color: colors.white,
+    opacity: 0.8,
+  },
+
+  extraButtonPrice: {
+    color: colors.black,
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    lineHeight: 14,
+    marginTop: 8,
+  },
+
+  extraButtonPriceActive: {
+    color: colors.white,
+  },
+
+  bottomBar: {
+    flexShrink: 0,
+    paddingHorizontal: 18,
+    paddingTop: 10,
+  },
+
+  cta: {
+    minHeight: 58,
+    backgroundColor: colors.black,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+
+  ctaText: {
+    color: colors.white,
+    fontFamily: fonts.bold,
+    fontSize: 14,
+    lineHeight: 17,
+  },
+
+  scroll: {
+    flex: 1,
+    minHeight: 0,
+  },
+
+  scrollContentCompact: {
+    paddingTop: 0,
+  },
+
+  visualWrapCompact: {
+    height: 218,
+    marginTop: 0,
+    marginBottom: 0,
+  },
+
+  titleCompact: {
+    fontSize: 31,
+    lineHeight: 33,
+    letterSpacing: -1,
+  },
+
+  ruleCompact: {
+    marginTop: 13,
+    marginBottom: 16,
+  },
+
+  infoBlockCompact: {
+    marginBottom: 16,
+  },
+
+  extraButtonCompact: {
+    minHeight: 88,
+    paddingVertical: 9,
+  },
+
+});

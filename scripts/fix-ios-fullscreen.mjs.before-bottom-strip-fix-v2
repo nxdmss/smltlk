@@ -1,0 +1,95 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const indexPath = path.join(root, 'dist', 'index.html');
+
+if (!fs.existsSync(indexPath)) {
+  console.error('dist/index.html не найден');
+  process.exit(1);
+}
+
+let html = fs.readFileSync(indexPath, 'utf8');
+
+html = html.replace(
+  /\s*<meta[^>]+name=["']viewport["'][^>]*>\s*/gi,
+  '\n'
+);
+
+html = html
+  .replace(/\s*<meta[^>]+name=["']apple-mobile-web-app-status-bar-style["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']apple-mobile-web-app-capable["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']mobile-web-app-capable["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<meta[^>]+name=["']theme-color["'][^>]*>\s*/gi, '\n')
+  .replace(/\s*<style[^>]+id=["']smltlk-ios-fullscreen["'][^>]*>[\s\S]*?<\/style>\s*/gi, '\n');
+
+const head = `
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#F6F7F5" />
+  <style id="smltlk-ios-fullscreen">
+    html,
+    body,
+    #root {
+      width: 100% !important;
+      height: 100% !important;
+      min-width: 100% !important;
+      min-height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      background: #FFFFFF !important;
+      overflow: hidden !important;
+    }
+
+    html {
+      position: fixed !important;
+      inset: 0 !important;
+    }
+
+    body {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      padding-top: 0 !important;
+      padding-right: 0 !important;
+      padding-bottom: 0 !important;
+      padding-left: 0 !important;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
+    }
+
+    #root {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    @supports (height: 100dvh) {
+      body,
+      #root {
+        height: 100dvh !important;
+        min-height: 100dvh !important;
+      }
+    }
+
+    @supports (height: 100svh) {
+      html {
+        min-height: 100svh !important;
+      }
+    }
+  </style>
+`;
+
+html = html.replace('</head>', head + '\n</head>');
+fs.writeFileSync(indexPath, html);
+
+console.log('iOS fullscreen safe-area fixed');

@@ -13,11 +13,21 @@ export default function ProductVisual({
 }) {
   const backgroundColor = productSurfaces[product.category];
 
+  const catalogBackgroundColor =
+    product.category === 'classic' ||
+    product.category === 'not-coffee'
+      ? colors.aqua
+      : colors.red;
+
   return (
     <View
       style={[
         hero ? s.hero : s.card,
-        { backgroundColor },
+        {
+          backgroundColor: hero
+            ? backgroundColor
+            : catalogBackgroundColor,
+        },
       ]}
     >
       <Image
@@ -31,17 +41,20 @@ export default function ProductVisual({
 
 const s = StyleSheet.create({
   card: {
-    height: 170,
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     overflow: 'hidden',
-    backgroundColor: colors.paper,
+    borderRadius: 4,
+    paddingTop: 10,
+    paddingBottom: 54,
   },
 
   cardImage: {
-    width: '92%',
-    height: '94%',
-    transform: [{ translateY: 6 }],
+    width: '82%',
+    height: '100%',
+    transform: [{ translateY: -2 }],
   },
 
   hero: {

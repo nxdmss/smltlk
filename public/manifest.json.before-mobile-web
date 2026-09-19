@@ -1,0 +1,19 @@
+{
+  "name": "Small Talk Coffee",
+  "short_name": "SMALL TALK",
+  "description": "Small Talk Coffee — заказ напитков и самовывоз",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#FFFFFF",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "/small-talk-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
